@@ -1,4 +1,8 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+import type { NuxtConfig } from 'nuxt/schema'
+import { defineNuxtConfig } from 'nuxt/config'
+
+/// <reference types="@nuxtjs/supabase" />
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
@@ -6,10 +10,12 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/supabase'],
 
   supabase: {
+    useSsrCookies: true,
+    types: '~/types/database.types.ts',
     redirectOptions: {
       login: '/auth/login',
       callback: '/auth/confirm',
-      exclude: ['/auth/*', '/'],
+      exclude: ['/auth/register', '/auth/forgot-password', '/auth/login', '/auth/confirm'],
     },
   },
 
@@ -18,15 +24,14 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'en' },
-      title: 'Chirp — A Twitter Clone',
+      title: 'Chirp — The New Sound',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Chirp — Share your thoughts with the world.' },
+        { name: 'description', content: 'Chirp — The New Sound.' },
         { name: 'theme-color', content: '#0f1117' },
-        // Open Graph
         { property: 'og:title', content: 'Chirp' },
-        { property: 'og:description', content: 'Share your thoughts with the world.' },
+        { property: 'og:description', content: 'The New Sound.' },
         { property: 'og:type', content: 'website' },
       ],
       link: [
@@ -34,16 +39,9 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Zalando+Sans+Expanded:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap',
         },
       ],
     },
   },
-
-  runtimeConfig: {
-    public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY,
-    },
-  },
-})
+} satisfies NuxtConfig)

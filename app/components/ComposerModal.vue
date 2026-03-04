@@ -5,7 +5,7 @@
       class="modal-overlay"
       role="dialog"
       aria-modal="true"
-      :aria-label="replyTo ? `Reply to ${replyTo.profile?.display_name}` : 'Compose new post'"
+      :aria-label="replyTo ? `Reply to ${replyTo.profile?.display_name}` : 'Compose new chirp'"
       @click.self="close"
       @keydown.esc="close">
       <div
@@ -25,7 +25,7 @@
             </svg>
           </button>
           <span class="modal-title">
-            {{ replyTo ? 'Reply' : 'New Post' }}
+            {{ replyTo ? 'Reply' : 'New Chirp' }}
           </span>
         </div>
 

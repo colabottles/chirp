@@ -29,7 +29,7 @@
     <button
       v-if="user"
       class="mobile-nav-link"
-      aria-label="Compose new post"
+      aria-label="Compose new chirp"
       @click="handleCompose"
       style="background: var(--color-accent); border: none; border-radius: 50%; width: 44px; height: 44px; cursor: pointer; color: var(--color-text-inverse);">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none"
@@ -75,7 +75,7 @@
           style="width: 100%; height: 100%; object-fit: cover;" />
         <span v-else
           style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 12px; font-weight: 700;">
-          {{ userProfile.display_name[0].toUpperCase() }}
+          {{ userProfile?.display_name?.[0]?.toUpperCase() }}
         </span>
       </div>
     </NuxtLink>

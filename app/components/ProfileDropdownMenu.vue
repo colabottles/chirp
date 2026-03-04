@@ -35,8 +35,6 @@ const supabase = useSupabaseClient()
 const router = useRouter()
 const { userProfile } = useProfile()
 
-const menuEl = ref<HTMLElement>()
-
 const menuItems = computed<MenuItem[]>(() => [
   {
     label: 'Add an existing account',
@@ -49,35 +47,49 @@ const menuItems = computed<MenuItem[]>(() => [
   },
 ])
 
-async function signOut() {
-  await supabase.auth.signOut()
-  router.push('/')
-  emit('close')
-}
+const menuEl = ref<HTMLElement>()
 
+// Define functions first
 function handleOutsideClick(e: MouseEvent) {
   if (menuEl.value && !menuEl.value.contains(e.target as Node)) {
     emit('close')
   }
 }
 
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    emit('close')
+  }
+}
+
+// Then use them in lifecycle hooks
 onMounted(() => {
-  document.addEventListener('click', handleOutsideClick)
+  document.addEventListener('mousedown', handleOutsideClick)
+  document.addEventListener('keydown', handleKeydown)
   nextTick(() => {
     const first = menuEl.value?.querySelector<HTMLElement>('[role="menuitem"]')
     first?.focus()
   })
 })
 
-onUnmounted(() => document.removeEventListener('click', handleOutsideClick))
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleOutsideClick)
+  document.removeEventListener('keydown', handleKeydown)
+})
+
+async function signOut() {
+  await supabase.auth.signOut()
+  router.push('/')
+  emit('close')
+}
 </script>
 
 <style scoped>
 .profile-dropdown {
   position: absolute;
-  bottom: 80px;
-  left: var(--space-3);
-  right: var(--space-3);
+  top: 4rem;
+  left: 0.5rem;
+  right: 0;
   list-style: none;
   margin: 0;
   padding: var(--space-1) 0;

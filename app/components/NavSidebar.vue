@@ -233,7 +233,7 @@
     <button
       v-if="user"
       class="nav-post-btn"
-      aria-label="Compose new post"
+      aria-label="Compose new chirp"
       @click="handleOpenComposer">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -248,48 +248,48 @@
         <line x1="12" y1="5" x2="12" y2="19" />
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
-      Post
+      Chirp
     </button>
 
     <!-- Guest CTA -->
-    <p v-else class="nav-guest">
+    <p v-else-if="!pending" class="nav-guest">
       <NuxtLink to="/auth/login" class="nav-post-btn" style="text-decoration: none; display: flex;">
         Sign in
       </NuxtLink>
     </p>
 
     <!-- At the bottom of NavSidebar, replacing <UserAccountMenu /> -->
-<section v-if="user && userProfile" class="nav-profile" aria-label="Account menu">
-  <button
-    class="nav-profile-btn"
-    :aria-label="`Account menu for ${userProfile?.display_name}`"
-    aria-haspopup="menu"
-    :aria-expanded="showProfileMenu"
-    @click="toggleProfileMenu">
-    <span class="nav-profile-avatar" aria-hidden="true">
-      <img
-        v-if="userProfile?.avatar_url"
-        :src="userProfile?.avatar_url"
-        :alt="userProfile?.display_name" />
-      <span v-else class="post-avatar-placeholder" aria-hidden="true">
-        {{ userProfile?.display_name?.[0]?.toUpperCase() }}
-      </span>
-    </span>
-    <span class="nav-profile-info">
-      <span class="nav-profile-name">{{ userProfile?.display_name }}</span>
-      <span class="nav-profile-handle">@{{ userProfile?.username }}</span>
-    </span>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"
-      fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="1" />
-      <circle cx="19" cy="12" r="1" />
-      <circle cx="5" cy="12" r="1" />
-    </svg>
-  </button>
-  <ProfileDropdownMenu
-    v-if="showProfileMenu"
-    @close="showProfileMenu = false" />
-</section>
+    <section v-if="user && userProfile" class="nav-profile" aria-label="Account menu">
+      <button
+        class="nav-profile-btn"
+        :aria-label="`Account menu for ${userProfile?.display_name}`"
+        aria-haspopup="menu"
+        :aria-expanded="showProfileMenu"
+        @click="toggleProfileMenu">
+        <span class="nav-profile-avatar" aria-hidden="true">
+          <img
+            v-if="userProfile?.avatar_url"
+            :src="userProfile?.avatar_url"
+            :alt="userProfile?.display_name" />
+          <span v-else class="post-avatar-placeholder" aria-hidden="true">
+            {{ userProfile?.display_name?.[0]?.toUpperCase() }}
+          </span>
+        </span>
+        <span class="nav-profile-info">
+          <span class="nav-profile-name">{{ userProfile?.display_name }}</span>
+          <span class="nav-profile-handle">@{{ userProfile?.username }}</span>
+        </span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"
+          fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="19" cy="12" r="1" />
+          <circle cx="5" cy="12" r="1" />
+        </svg>
+      </button>
+      <ProfileDropdownMenu
+        v-if="showProfileMenu"
+        @close="showProfileMenu = false" />
+    </section>
   </header>
 </template>
 
@@ -299,17 +299,38 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const user = useSupabaseUser()
+const pending = ref(true)
 const { userProfile } = useProfile()
 const { unreadCount } = useNotifications()
 const { open } = useComposerModal()
 
 const showProfileMenu = ref(false)
 
-function handleOpenComposer() {
-  open()
-}
+onMounted(async () => {
+  await useSupabaseClient().auth.getSession()
+  pending.value = false
+})
 
 function toggleProfileMenu() {
   showProfileMenu.value = !showProfileMenu.value
 }
+
+function handleOpenComposer() {
+  open()
+}
 </script>
+
+<style scoped>
+  .nav-profile {
+    position: relative;
+  }
+
+  .nav-profile-btn svg:last-of-type {
+    color: #9ca3af;
+  }
+
+  .nav-profile-btn:hover svg:last-of-type,
+  .nav-profile-btn:focus-visible svg:last-of-type {
+    color: #e5e7eb;
+  }
+</style>

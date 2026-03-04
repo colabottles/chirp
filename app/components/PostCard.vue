@@ -86,11 +86,39 @@
       <!-- Post content -->
       <p class="post-content" v-html="parsedContent"></p>
 
-      <!-- Post image -->
-      <figure v-if="displayPost?.image_url" class="post-image">
-        <img :src="displayPost.image_url" alt="Post image" loading="lazy"
-          style="width: 100%; display: block;" />
-      </figure>
+      <!-- Post images -->
+      <div
+        v-if="imageUrls.length"
+        class="post-image-grid"
+        :class="`post-image-grid--${imageUrls.length}`"
+        role="list"
+        :aria-label="`${imageUrls.length} attached image${imageUrls.length > 1 ? 's' : ''}`">
+        <figure
+          v-for="(url, i) in imageUrls"
+          :key="url"
+          class="post-image-figure"
+          role="listitem">
+          <img
+            :src="url"
+            :alt="displayPost.image_alts?.[i] || ''"
+            loading="lazy"
+            class="post-image-thumb" />
+          <AltBadge
+            :alt-text="displayPost.image_alts?.[i] ?? ''"
+            :size="a11yPrefs.alt_badge_size ?? 'small'"
+            @click="altModal = { imageUrl: url, altText: displayPost.image_alts?.[i] ?? '', imageIndex: i }" />
+        </figure>
+      </div>
+
+      <!-- Alt text modal -->
+      <AltTextModal
+        v-if="altModal"
+        :image-url="altModal.imageUrl"
+        :alt-text="altModal.altText"
+        :image-index="altModal.imageIndex"
+        :post-id="displayPost.id"
+        @saved="(i: number, text: string) => { if (displayPost.image_alts) displayPost.image_alts[i] = text }"
+        @close="altModal = null" />
 
       <!-- Quoted post -->
       <NuxtLink
@@ -197,11 +225,13 @@ const isBookmarked = ref(props.post.is_bookmarked ?? false)
 // Keep in sync if prop changes (e.g. feed refresh)
 watch(() => props.post.is_bookmarked, (val) => {
   isBookmarked.value = val ?? false
-}, {immediate: true })
+}, { immediate: true })
 
 const displayPost = computed<Post>(() =>
   props.post.repost_of_id && props.post.repost_of ? props.post.repost_of as Post : props.post
 )
+const { prefs: a11yPrefs } = useAccessibilityPrefs()
+const altModal = ref<{ imageUrl: string; altText: string; imageIndex: number } | null>(null)
 const displayProfile = computed<Profile | undefined>(() =>
   props.post.repost_of_id && (props.post.repost_of as Post)?.profile
     ? (props.post.repost_of as Post).profile
@@ -220,6 +250,11 @@ function parseContent(content: string): string {
     .replace(/@(\w+)/g, '<a href="/profile/$1" class="post-mention" aria-label="View profile of $1">@$1</a>')
     .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="post-link">$1</a>')
 }
+const imageUrls = computed<string[]>(() => {
+  if (displayPost.value?.image_urls?.length) return displayPost.value.image_urls
+  if (displayPost.value?.image_url) return [displayPost.value.image_url]
+  return []
+})
 
 function handleReply() { openReply(props.post) }
 
@@ -254,3 +289,48 @@ function formatCount(n: number): string {
   return n.toString()
 }
 </script>
+
+<style scoped>
+.post-image-grid {
+  display: grid;
+  gap: 2px;
+  margin-top: var(--space-3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.post-image-grid--1 {
+  grid-template-columns: 1fr;
+}
+
+.post-image-grid--2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.post-image-grid--3 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.post-image-grid--3 .post-image-figure:first-child {
+  grid-column: 1 / -1;
+}
+
+.post-image-grid--4 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.post-image-figure {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-surface-2);
+}
+
+.post-image-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+</style>

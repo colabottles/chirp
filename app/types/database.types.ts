@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       accessibility_prefs: {
         Row: {
+          alt_badge_size: string
           created_at: string
           high_contrast: boolean
           id: string
@@ -25,6 +26,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          alt_badge_size?: string
           created_at?: string
           high_contrast?: boolean
           id?: string
@@ -34,6 +36,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          alt_badge_size?: string
           created_at?: string
           high_contrast?: boolean
           id?: string
@@ -498,7 +501,9 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          image_alts: string[] | null
           image_url: string | null
+          image_urls: string[] | null
           likes_count: number
           replies_count: number
           reply_to_id: string | null
@@ -512,7 +517,9 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          image_alts?: string[] | null
           image_url?: string | null
+          image_urls?: string[] | null
           likes_count?: number
           replies_count?: number
           reply_to_id?: string | null
@@ -526,7 +533,9 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          image_alts?: string[] | null
           image_url?: string | null
+          image_urls?: string[] | null
           likes_count?: number
           replies_count?: number
           reply_to_id?: string | null
@@ -573,6 +582,7 @@ export type Database = {
           is_verified: boolean
           location: string | null
           posts_count: number
+          require_alt_text: boolean
           updated_at: string
           username: string
           website: string | null
@@ -589,6 +599,7 @@ export type Database = {
           is_verified?: boolean
           location?: string | null
           posts_count?: number
+          require_alt_text?: boolean
           updated_at?: string
           username: string
           website?: string | null
@@ -605,6 +616,7 @@ export type Database = {
           is_verified?: boolean
           location?: string | null
           posts_count?: number
+          require_alt_text?: boolean
           updated_at?: string
           username?: string
           website?: string | null

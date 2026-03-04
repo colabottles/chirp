@@ -182,14 +182,14 @@
             <fieldset class="settings-fieldset">
               <legend class="settings-legend">Images</legend>
 
+              <!-- Require alt text toggle -->
               <div class="settings-toggle-row">
                 <div class="settings-toggle-info">
                   <label for="require-alt-text" class="settings-label">Require alt text on
                     images</label>
                   <p class="settings-hint">
                     When enabled, you won't be able to post images without providing descriptive alt
-                    text.
-                    This helps make your posts accessible to people using screen readers.
+                    text. This helps make your posts accessible to people using screen readers.
                   </p>
                 </div>
                 <button
@@ -202,6 +202,41 @@
                   @click="togglePref('require_alt_text')">
                   <span class="settings-toggle-thumb" aria-hidden="true"></span>
                 </button>
+              </div>
+
+              <!-- Alt badge size -->
+              <div class="settings-toggle-row" style="align-items: flex-start;">
+                <div class="settings-toggle-info">
+                  <p class="settings-label">Alt badge size</p>
+                  <p class="settings-hint">
+                    The ALT badge appears in the bottom-right corner of images that have alt text.
+                    Click it to read the description. Choose small for a subtle indicator or large
+                    for easier tapping.
+                  </p>
+                </div>
+                <fieldset class="alt-badge-size-group">
+                  <legend class="sr-only">Alt badge size</legend>
+                  <label class="alt-badge-option">
+                    <input
+                      type="radio"
+                      name="alt-badge-size"
+                      value="small"
+                      :checked="a11yPrefs.alt_badge_size !== 'large'"
+                      @change="togglePref('alt_badge_size', 'small')" />
+                    <span class="badge-preview badge-preview--small">ALT</span>
+                    <span class="alt-badge-option-label">Small</span>
+                  </label>
+                  <label class="alt-badge-option">
+                    <input
+                      type="radio"
+                      name="alt-badge-size"
+                      value="large"
+                      :checked="a11yPrefs.alt_badge_size === 'large'"
+                      @change="togglePref('alt_badge_size', 'large')" />
+                    <span class="badge-preview badge-preview--large">ALT</span>
+                    <span class="alt-badge-option-label">Large</span>
+                  </label>
+                </fieldset>
               </div>
             </fieldset>
 
@@ -264,6 +299,7 @@
 
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
+import type { AccessibilityPrefs } from '~/composables/useAccessibilityPrefs'
 
 definePageMeta({ layout: 'default' })
 useHead({ title: 'Settings — Chirp' })
@@ -274,16 +310,14 @@ const { showToast } = useToast()
 const { announce } = useAnnouncer()
 const { prefs: a11yPrefsRaw, updatePrefs: updateA11yPrefs } = useAccessibilityPrefs()
 
-// ── Sections ──────────────────────────────────────────────────────────────────
-
+// Sections
 const sections = [
   { id: 'account', label: 'Account' },
   { id: 'accessibility', label: 'Accessibility' },
 ]
 const activeSection = ref('account')
 
-// ── Account form ──────────────────────────────────────────────────────────────
-
+// Account form
 const accountForm = reactive({
   display_name: '',
   username: '',
@@ -345,7 +379,6 @@ async function saveAccount() {
   accountSaved.value = false
 
   try {
-    // Update profile
     const { error: profileError } = await supabase
       .from('profiles')
       .update({
@@ -359,20 +392,14 @@ async function saveAccount() {
 
     if (profileError) throw profileError
 
-    // Update email if changed
     if (accountForm.email !== session.value.user.email) {
-      const { error: emailError } = await supabase.auth.updateUser({
-        email: accountForm.email,
-      })
+      const { error: emailError } = await supabase.auth.updateUser({ email: accountForm.email })
       if (emailError) throw emailError
       showToast('Check your new email address to confirm the change.', 'info')
     }
 
-    // Update password if provided
     if (accountForm.new_password) {
-      const { error: pwError } = await supabase.auth.updateUser({
-        password: accountForm.new_password,
-      })
+      const { error: pwError } = await supabase.auth.updateUser({ password: accountForm.new_password })
       if (pwError) throw pwError
       accountForm.new_password = ''
       accountForm.confirm_password = ''
@@ -390,20 +417,20 @@ async function saveAccount() {
   }
 }
 
-// ── Accessibility prefs ───────────────────────────────────────────────────────
-
+// Accessibility prefs
 const a11yPrefs = computed(() => a11yPrefsRaw.value)
 const a11ySaved = ref(false)
 
-async function togglePref(key: 'require_alt_text' | 'reduce_motion' | 'high_contrast') {
-  await updateA11yPrefs({ [key]: !a11yPrefs.value[key] })
+async function togglePref(key: keyof AccessibilityPrefs, value?: unknown) {
+  const current = a11yPrefs.value[key]
+  const next = value !== undefined ? value : !current
+  await updateA11yPrefs({ [key]: next })
   a11ySaved.value = true
-  announce(`${key.replace(/_/g, ' ')} ${a11yPrefs.value[key] ? 'enabled' : 'disabled'}.`)
+  announce(`${key.replace(/_/g, ' ')} ${next ? 'enabled' : 'disabled'}.`)
   setTimeout(() => { a11ySaved.value = false }, 3000)
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-
+// Init
 watch(session, (s) => {
   if (s?.user) loadProfile()
 }, { immediate: true })
@@ -612,6 +639,62 @@ watch(session, (s) => {
   transform: translateX(20px);
 }
 
+/* ── Alt badge size radio group ── */
+.alt-badge-size-group {
+  border: none;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+  display: flex;
+  gap: var(--space-4);
+}
+
+.alt-badge-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.alt-badge-option input[type="radio"] {
+  accent-color: var(--color-accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.alt-badge-option-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.badge-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.badge-preview--small {
+  font-size: 8px;
+  padding: 2px;
+}
+
+.badge-preview--large {
+  font-size: 12px;
+  padding: 5px;
+}
+
+/* ── Primary button ── */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -642,6 +725,7 @@ watch(session, (s) => {
   outline-offset: 2px;
 }
 
+/* ── Responsive ── */
 @media (max-width: 700px) {
   .settings-layout {
     grid-template-columns: 1fr;

@@ -22,6 +22,8 @@ export interface Post {
   user_id: string
   content: string
   image_url: string | null
+  image_urls: string[] | null   // multi-image
+  image_alts: string[] | null   // alt text per image
   reply_to_id: string | null
   repost_of_id: string | null
   created_at: string

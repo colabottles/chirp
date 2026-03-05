@@ -198,6 +198,11 @@
         <PostCard v-for="post in userPosts" :key="post.id" :post="post" @deleted="removeUserPost" />
       </section>
     </article>
+    <ProfileEditModal
+      v-if="showEditModal && profileData"
+      :profile="profileData"
+      @saved="onProfileSaved"
+      @close="showEditModal = false" />
   </div>
 </template>
 
@@ -208,7 +213,8 @@ import type { Database } from '~/types/database.types'
 const route = useRoute()
 const router = useRouter()
 const supabase = useSupabaseClient<Database>()
-const user = useSupabaseUser()
+const session = useSupabaseSession()
+const user = computed(() => session.value?.user ?? null)
 
 const username = computed(() => route.params.username as string)
 const activeTab = ref('posts')
@@ -225,7 +231,7 @@ const userPosts = ref<Post[]>([])
 const loadingPosts = ref(false)
 
 const isOwnProfile = computed(
-  () => user.value && profileData.value?.id === user.value.id
+  () => session.value?.user && profileData.value?.id === session.value.user.id
 )
 
 useHead(() => ({
@@ -253,8 +259,12 @@ async function fetchProfileData() {
   }
 }
 
+function onProfileSaved(updated: Profile) {
+  profile.value = updated
+}
+
 async function fetchFollowStatus() {
-  if (!user.value?.id || !profile.value?.id) return
+  if (session.value?.user?.id || !profile.value?.id) return
   const { data } = await supabase
     .from('follows')
     .select('id')
@@ -278,7 +288,7 @@ async function fetchUserPosts() {
 }
 
 async function toggleFollow() {
-  if (!user.value || !profile.value) return
+  if (session.value?.user?.id || !profile.value) return
   const { announce } = useAnnouncer()
 
   if (isFollowing.value) {

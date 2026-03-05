@@ -133,6 +133,115 @@
   --color-text-inverse: #f4f4f5;
 }
 
+/* High-contrast theme */
+[data-theme="high-contrast"] {
+  --color-bg: #000000;
+  --color-surface: #000000;
+  --color-surface-2: #0a0a0a;
+  --color-surface-3: #111111;
+  --color-border: #ffffff;
+  --color-border-subtle: #888888;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #eeeeee;
+  --color-text-tertiary: #cccccc;
+  --color-text-inverse: #000000;
+  --color-accent: #00ff99;
+  --color-accent-hover: #00ffaa;
+  --color-accent-muted: rgba(0, 255, 153, 0.2);
+  --color-accent-dim: rgba(0, 255, 153, 0.1);
+  --color-like: #ff6b8a;
+  --color-repost: #00ff99;
+  --color-error: #ff4d6a;
+  --color-warning: #ffcc00;
+  --color-success: #00ff99;
+  --focus-ring: 0 0 0 3px #ffffff;
+}
+
+/* Theme color picker */
+[data-accent="chirp"] {
+  --color-accent: #00DC82;
+  --color-accent-dim: #00DC8220;
+  --color-accent-muted: #00DC8240;
+  --color-accent-hover: #00C470;
+}
+
+[data-accent="teal"] {
+  --color-accent: #0D9488;
+  --color-accent-dim: #0D948820;
+  --color-accent-muted: #0D948840;
+  --color-accent-hover: #0F766E;
+}
+
+[data-accent="purple"] {
+  --color-accent: #663399;
+  --color-accent-dim: #66339920;
+  --color-accent-muted: #66339940;
+  --color-accent-hover: #4B2273;
+}
+
+[data-accent="green"] {
+  --color-accent: #16A34A;
+  --color-accent-dim: #16A34A20;
+  --color-accent-muted: #16A34A40;
+  --color-accent-hover: #15803D;
+}
+
+[data-accent="rose"] {
+  --color-accent: #E11D48;
+  --color-accent-dim: #E11D4820;
+  --color-accent-muted: #E11D4840;
+  --color-accent-hover: #BE123C;
+}
+
+[data-accent="lobster"] {
+  --color-accent: #C0392B;
+  --color-accent-dim: #C0392B20;
+  --color-accent-muted: #C0392B40;
+  --color-accent-hover: #A93226;
+}
+
+[data-accent="yellow"] {
+  --color-accent: #CA8A04;
+  --color-accent-dim: #CA8A0420;
+  --color-accent-muted: #CA8A0440;
+  --color-accent-hover: #A16207;
+}
+
+[data-accent="orange"] {
+  --color-accent: #EA580C;
+  --color-accent-dim: #EA580C20;
+  --color-accent-muted: #EA580C40;
+  --color-accent-hover: #C2410C;
+}
+
+[data-accent="blue"] {
+  --color-accent: #2563EB;
+  --color-accent-dim: #2563EB20;
+  --color-accent-muted: #2563EB40;
+  --color-accent-hover: #1D4ED8;
+}
+
+[data-accent="indigo"] {
+  --color-accent: #4338CA;
+  --color-accent-dim: #4338CA20;
+  --color-accent-muted: #4338CA40;
+  --color-accent-hover: #3730A3;
+}
+
+[data-accent="violet"] {
+  --color-accent: #6D28D9;
+  --color-accent-dim: #6D28D920;
+  --color-accent-muted: #6D28D940;
+  --color-accent-hover: #5B21B6;
+}
+
+[data-accent="pink"] {
+  --color-accent: #DB2777;
+  --color-accent-dim: #DB277720;
+  --color-accent-muted: #DB277740;
+  --color-accent-hover: #BE185D;
+}
+
 /* ============================================================
    RESET & BASE
    ============================================================ */
@@ -241,6 +350,78 @@ body {
   :focus-visible {
     outline: 3px solid ButtonText;
   }
+}
+
+/* Reduce flashing */
+.reduce-flashing *,
+.reduce-flashing *::before,
+.reduce-flashing *::after {
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+.reduce-flashing .skeleton,
+.reduce-flashing [class*="skeleton"],
+.reduce-flashing [class*="pulse"],
+.reduce-flashing [class*="blink"],
+.reduce-flashing [class*="spinner"] {
+  animation: none !important;
+}
+
+/* Text size */
+[data-text-size="small"] {
+  --text-base: 0.875rem;
+  --text-sm: 0.8125rem;
+  --text-xs: 0.75rem;
+  --text-lg: 1rem;
+  --text-xl: 1.125rem;
+}
+
+[data-text-size="medium"] {
+  --text-base: 1rem;
+  --text-sm: 0.875rem;
+  --text-xs: 0.75rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+}
+
+[data-text-size="large"] {
+  --text-base: 1.125rem;
+  --text-sm: 1rem;
+  --text-xs: 0.875rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+}
+
+/* Line spacing */
+[data-line-spacing="normal"] {
+  --line-height-base: 1.5;
+  --line-height-tight: 1.25;
+  --line-height-relaxed: 1.625;
+}
+
+[data-line-spacing="relaxed"] {
+  --line-height-base: 1.75;
+  --line-height-tight: 1.5;
+  --line-height-relaxed: 2;
+}
+
+[data-line-spacing="loose"] {
+  --line-height-base: 2;
+  --line-height-tight: 1.75;
+  --line-height-relaxed: 2.25;
+}
+
+/* Focus indicator */
+[data-focus-indicator="standard"] :focus-visible {
+  outline-width: 2px;
+  outline-offset: 2px;
+}
+
+[data-focus-indicator="large"] :focus-visible {
+  outline-width: 4px;
+  outline-offset: 4px;
+  outline-style: solid;
 }
 
 /* ============================================================

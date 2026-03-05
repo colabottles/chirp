@@ -23,4 +23,15 @@
 
 <script setup lang="ts">
 const { liveAnnouncement } = useAnnouncer()
+const { applyPrefsToDOM, loadPrefs } = useAccessibilityPrefs()
+
+onMounted(async () => {
+  await loadPrefs()       // fetch from Supabase
+  applyPrefsToDOM()       // apply immediately
+  watchEffect(() => {
+    if (import.meta.client) {
+      applyPrefsToDOM()   // keep in sync on changes
+    }
+  })
+})
 </script>

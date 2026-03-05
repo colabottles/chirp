@@ -179,10 +179,11 @@
           <h2 id="a11y-heading" class="settings-section-title">Accessibility</h2>
 
           <div class="settings-form">
+
+            <!-- Images -->
             <fieldset class="settings-fieldset">
               <legend class="settings-legend">Images</legend>
 
-              <!-- Require alt text toggle -->
               <div class="settings-toggle-row">
                 <div class="settings-toggle-info">
                   <label for="require-alt-text" class="settings-label">Require alt text on
@@ -204,7 +205,30 @@
                 </button>
               </div>
 
-              <!-- Alt badge size -->
+              <!-- Require content warning -->
+              <div class="settings-toggle-row">
+                <div class="settings-toggle-info">
+                  <label for="require-content-warning" class="settings-label">
+                    Require content warning on videos and GIFs
+                  </label>
+                  <p class="settings-hint">
+                    When enabled, you'll be reminded to add a content warning before posting videos,
+                    GIFs, or other flashing media. Helps protect users sensitive to motion or
+                    flashing content.
+                  </p>
+                </div>
+                <button
+                  id="require-content-warning"
+                  role="switch"
+                  :aria-checked="a11yPrefs.require_content_warning ? 'true' : 'false'"
+                  class="settings-toggle"
+                  :class="{ on: a11yPrefs.require_content_warning }"
+                  :aria-label="`Require content warning on videos and GIFs: ${a11yPrefs.require_content_warning ? 'on' : 'off'}`"
+                  @click="togglePref('require_content_warning')">
+                  <span class="settings-toggle-thumb" aria-hidden="true"></span>
+                </button>
+              </div>
+
               <div class="settings-toggle-row" style="align-items: flex-start;">
                 <div class="settings-toggle-info">
                   <p class="settings-label">Alt badge size</p>
@@ -240,8 +264,9 @@
               </div>
             </fieldset>
 
+            <!-- Motion -->
             <fieldset class="settings-fieldset">
-              <legend class="settings-legend">Motion &amp; display</legend>
+              <legend class="settings-legend">Motion</legend>
 
               <div class="settings-toggle-row">
                 <div class="settings-toggle-info">
@@ -265,22 +290,175 @@
 
               <div class="settings-toggle-row">
                 <div class="settings-toggle-info">
-                  <label for="high-contrast" class="settings-label">High contrast</label>
+                  <p class="settings-label">Reduce flashing</p>
                   <p class="settings-hint">
-                    Increases contrast between text and backgrounds to improve readability.
-                    Useful for users with low vision or colour sensitivity.
+                    Stops pulsing skeletons, spinners, and blinking badges. Recommended for
+                    photosensitivity and epilepsy.
                   </p>
                 </div>
                 <button
-                  id="high-contrast"
                   role="switch"
-                  :aria-checked="a11yPrefs.high_contrast ? 'true' : 'false'"
+                  :aria-checked="a11yPrefs.reduce_flashing ? 'true' : 'false'"
                   class="settings-toggle"
-                  :class="{ on: a11yPrefs.high_contrast }"
-                  :aria-label="`High contrast: ${a11yPrefs.high_contrast ? 'on' : 'off'}`"
-                  @click="togglePref('high_contrast')">
+                  :class="{ on: a11yPrefs.reduce_flashing }"
+                  :aria-label="`Reduce flashing: ${a11yPrefs.reduce_flashing ? 'on' : 'off'}`"
+                  @click="togglePref('reduce_flashing')">
                   <span class="settings-toggle-thumb" aria-hidden="true"></span>
                 </button>
+              </div>
+            </fieldset>
+
+            <!-- Typography -->
+            <fieldset class="settings-fieldset">
+              <legend class="settings-legend">Typography</legend>
+
+              <div class="settings-toggle-row" style="align-items: flex-start;">
+                <div class="settings-toggle-info">
+                  <p class="settings-label">Text size</p>
+                  <p class="settings-hint">Adjust the base font size across Chirp.</p>
+                </div>
+                <fieldset class="radio-group">
+                  <legend class="sr-only">Text size</legend>
+                  <label class="radio-option" v-for="opt in textSizeOptions" :key="opt.value">
+                    <input
+                      type="radio"
+                      name="text_size"
+                      :value="opt.value"
+                      :checked="a11yPrefs.text_size === opt.value"
+                      @change="togglePref('text_size', opt.value as 'small' | 'medium' | 'large')" />
+                    <span>{{ opt.label }}</span>
+                  </label>
+                </fieldset>
+              </div>
+
+              <div class="settings-toggle-row" style="align-items: flex-start;">
+                <div class="settings-toggle-info">
+                  <p class="settings-label">Line spacing</p>
+                  <p class="settings-hint">Increase space between lines of text. Helps with
+                    readability and dyslexia.</p>
+                </div>
+                <fieldset class="radio-group">
+                  <legend class="sr-only">Line spacing</legend>
+                  <label class="radio-option" v-for="opt in lineSpacingOptions" :key="opt.value">
+                    <input
+                      type="radio"
+                      name="line_spacing"
+                      :value="opt.value"
+                      :checked="a11yPrefs.line_spacing === opt.value"
+                      @change="togglePref('line_spacing', opt.value as 'normal' | 'relaxed' | 'loose')" />
+                    <span>{{ opt.label }}</span>
+                  </label>
+                </fieldset>
+              </div>
+
+              <div class="settings-toggle-row" style="align-items: flex-start;">
+                <div class="settings-toggle-info">
+                  <p class="settings-label">Focus indicator</p>
+                  <p class="settings-hint">Enlarges the keyboard focus ring sitewide for low vision
+                    users.</p>
+                </div>
+                <fieldset class="radio-group">
+                  <legend class="sr-only">Focus indicator size</legend>
+                  <label class="radio-option" v-for="opt in focusIndicatorOptions" :key="opt.value">
+                    <input
+                      type="radio"
+                      name="focus_indicator"
+                      :value="opt.value"
+                      :checked="a11yPrefs.focus_indicator === opt.value"
+                      @change="togglePref('focus_indicator', opt.value as 'standard' | 'large')" />
+                    <span>{{ opt.label }}</span>
+                  </label>
+                </fieldset>
+              </div>
+            </fieldset>
+
+            <!-- Personalization -->
+            <fieldset class="settings-fieldset">
+              <legend class="settings-legend">Personalization</legend>
+
+              <div class="settings-toggle-row" style="align-items: flex-start;">
+                <div class="settings-toggle-info">
+                  <p class="settings-label">Theme</p>
+                  <p class="settings-hint">
+                    Choose how Chirp looks to you. System follows your device's light or dark mode
+                    preference.
+                  </p>
+                </div>
+                <fieldset class="radio-group">
+                  <legend class="sr-only">Theme</legend>
+                  <label class="radio-option" v-for="opt in themeOptions" :key="opt.value">
+                    <input
+                      type="radio"
+                      name="theme"
+                      :value="opt.value"
+                      :checked="a11yPrefs.theme === opt.value"
+                      @change="togglePref('theme', opt.value)" />
+                    <span>{{ opt.label }}</span>
+                  </label>
+                </fieldset>
+              </div>
+
+              <div class="settings-toggle-row" style="align-items: flex-start;">
+                <div class="settings-toggle-info">
+                  <p class="settings-label">Accent color</p>
+                  <p class="settings-hint">
+                    Choose a highlight color for buttons, links, and interactive elements.
+                  </p>
+                  <p class="settings-hint">
+                    <span class="attention">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        width="16" height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                        focusable="false">
+                        <path
+                          d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                      Attention:
+                    </span>
+                    <br>
+                    Some colors may not be accessible in all color modes. For example, Chirp green
+                    in light mode does not meet WCAG accessibility contrast standards.
+                  </p>
+                </div>
+                <div class="accent-swatches" role="radiogroup" aria-label="Accent color">
+                  <label
+                    v-for="color in accentColors"
+                    :key="color.value"
+                    class="accent-swatch-label"
+                    :title="color.label">
+                    <input
+                      type="radio"
+                      name="accent_color"
+                      :value="color.value"
+                      :checked="a11yPrefs.accent_color === color.value"
+                      class="sr-only"
+                      @change="togglePref('accent_color', color.value)" />
+                    <span
+                      class="accent-swatch"
+                      :style="{ background: color.hex }"
+                      :aria-label="color.label">
+                      <svg
+                        v-if="a11yPrefs.accent_color === color.value"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        width="14" height="14"
+                        fill="none"
+                        stroke="#fff"
+                        stroke-width="3"
+                        aria-hidden="true"
+                        focusable="false">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
+                  </label>
+                </div>
               </div>
             </fieldset>
 
@@ -289,6 +467,7 @@
                 ✓ Accessibility preferences saved.
               </p>
             </div>
+
           </div>
         </section>
 
@@ -304,20 +483,59 @@ import type { AccessibilityPrefs } from '~/composables/useAccessibilityPrefs'
 definePageMeta({ layout: 'default' })
 useHead({ title: 'Settings — Chirp' })
 
+const themeOptions = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'high-contrast', label: 'High contrast' },
+]
+
+type AccentColor = 'chirp' | 'teal' | 'purple' | 'green' | 'rose' | 'lobster' | 'yellow' | 'orange' | 'blue' | 'indigo' | 'violet' | 'pink'
+
+const accentColors: { value: AccentColor; label: string; hex: string }[] = [
+  { value: 'chirp', label: 'Chirp', hex: '#00DC82' },
+  { value: 'teal', label: 'Teal', hex: '#0D9488' },
+  { value: 'purple', label: 'Purple', hex: '#663399' },
+  { value: 'green', label: 'Green', hex: '#16A34A' },
+  { value: 'rose', label: 'Rose', hex: '#E11D48' },
+  { value: 'lobster', label: 'Lobster', hex: '#C0392B' },
+  { value: 'yellow', label: 'Yellow', hex: '#CA8A04' },
+  { value: 'orange', label: 'Orange', hex: '#EA580C' },
+  { value: 'blue', label: 'Blue', hex: '#2563EB' },
+  { value: 'indigo', label: 'Indigo', hex: '#4338CA' },
+  { value: 'violet', label: 'Violet', hex: '#6D28D9' },
+  { value: 'pink', label: 'Pink', hex: '#DB2777' },
+]
+
+const textSizeOptions = [
+  { value: 'small', label: 'Small' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'large', label: 'Large' },
+]
+
+const lineSpacingOptions = [
+  { value: 'normal', label: 'Normal' },
+  { value: 'relaxed', label: 'Relaxed' },
+  { value: 'loose', label: 'Loose' },
+]
+
+const focusIndicatorOptions = [
+  { value: 'standard', label: 'Standard' },
+  { value: 'large', label: 'Large' },
+]
+
 const supabase = useSupabaseClient<Database>()
 const session = useSupabaseSession()
 const { showToast } = useToast()
 const { announce } = useAnnouncer()
-const { prefs: a11yPrefsRaw, updatePrefs: updateA11yPrefs } = useAccessibilityPrefs()
+const { prefs: a11yPrefs, updatePrefs: updateA11yPrefs } = useAccessibilityPrefs()
 
-// Sections
 const sections = [
   { id: 'account', label: 'Account' },
   { id: 'accessibility', label: 'Accessibility' },
 ]
 const activeSection = ref('account')
 
-// Account form
 const accountForm = reactive({
   display_name: '',
   username: '',
@@ -352,32 +570,24 @@ async function loadProfile() {
 
 function validateAccount(): boolean {
   Object.keys(accountErrors).forEach((k) => delete accountErrors[k])
-
-  if (!accountForm.display_name.trim()) {
+  if (!accountForm.display_name.trim())
     accountErrors.display_name = 'Display name is required.'
-  }
-  if (!accountForm.username.trim()) {
+  if (!accountForm.username.trim())
     accountErrors.username = 'Username is required.'
-  } else if (!/^[a-zA-Z0-9_]+$/.test(accountForm.username)) {
+  else if (!/^[a-zA-Z0-9_]+$/.test(accountForm.username))
     accountErrors.username = 'Username can only contain letters, numbers, and underscores.'
-  }
-  if (accountForm.new_password && accountForm.new_password.length < 8) {
+  if (accountForm.new_password && accountForm.new_password.length < 8)
     accountErrors.new_password = 'Password must be at least 8 characters.'
-  }
-  if (accountForm.new_password && accountForm.new_password !== accountForm.confirm_password) {
+  if (accountForm.new_password && accountForm.new_password !== accountForm.confirm_password)
     accountErrors.confirm_password = 'Passwords do not match.'
-  }
-
   return Object.keys(accountErrors).length === 0
 }
 
 async function saveAccount() {
   if (!session.value?.user) return
   if (!validateAccount()) return
-
   savingAccount.value = true
   accountSaved.value = false
-
   try {
     const { error: profileError } = await supabase
       .from('profiles')
@@ -389,7 +599,6 @@ async function saveAccount() {
         location: accountForm.location.trim() || null,
       })
       .eq('id', session.value.user.id)
-
     if (profileError) throw profileError
 
     if (accountForm.email !== session.value.user.email) {
@@ -397,14 +606,12 @@ async function saveAccount() {
       if (emailError) throw emailError
       showToast('Check your new email address to confirm the change.', 'info')
     }
-
     if (accountForm.new_password) {
       const { error: pwError } = await supabase.auth.updateUser({ password: accountForm.new_password })
       if (pwError) throw pwError
       accountForm.new_password = ''
       accountForm.confirm_password = ''
     }
-
     accountSaved.value = true
     announce('Account settings saved.')
     showToast('Changes saved.', 'success')
@@ -417,8 +624,6 @@ async function saveAccount() {
   }
 }
 
-// Accessibility prefs
-const a11yPrefs = computed(() => a11yPrefsRaw.value)
 const a11ySaved = ref(false)
 
 async function togglePref(key: keyof AccessibilityPrefs, value?: unknown) {
@@ -430,7 +635,6 @@ async function togglePref(key: keyof AccessibilityPrefs, value?: unknown) {
   setTimeout(() => { a11ySaved.value = false }, 3000)
 }
 
-// Init
 watch(session, (s) => {
   if (s?.user) loadProfile()
 }, { immediate: true })
@@ -557,7 +761,6 @@ watch(session, (s) => {
 .settings-input-prefix {
   display: flex;
   align-items: center;
-  gap: 0;
 }
 
 .settings-prefix {
@@ -585,12 +788,12 @@ watch(session, (s) => {
   justify-content: flex-end;
 }
 
-/* Toggle switch */
+/* ── Toggle switch ── */
 .settings-toggle-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
 .settings-toggle-info {
@@ -637,6 +840,68 @@ watch(session, (s) => {
 
 .settings-toggle.on .settings-toggle-thumb {
   transform: translateX(20px);
+}
+
+/* ── Radio group — theme, text size, line spacing, focus indicator ── */
+.radio-group {
+  border: none;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 120px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.radio-option input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-subtle);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+  position: relative;
+}
+
+.radio-option input[type="radio"]:checked {
+  border-color: var(--color-accent);
+}
+
+.radio-option input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.radio-option input[type="radio"]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.radio-option:hover input[type="radio"]:not(:checked) {
+  border-color: var(--color-accent);
 }
 
 /* ── Alt badge size radio group ── */
@@ -692,6 +957,61 @@ watch(session, (s) => {
 .badge-preview--large {
   font-size: 12px;
   padding: 5px;
+}
+
+/* ── Accent swatches ── */
+.accent-swatches {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  padding-top: var(--space-1);
+}
+
+.accent-swatch-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  cursor: pointer;
+}
+
+.accent-swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.accent-swatch-label:has(input:checked) .accent-swatch {
+  border-color: var(--color-text-primary);
+  transform: scale(1.1);
+}
+
+.accent-swatch-label:has(input:focus-visible) .accent-swatch {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 3px;
+}
+
+.accent-swatch:hover {
+  transform: scale(1.1);
+}
+
+/* ── Attention warning ── */
+.attention {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #C0392B;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: var(--text-base);
+  line-height: 1;
+  margin-top: var(--space-4);
+  margin-bottom: -0.75rem;
 }
 
 /* ── Primary button ── */

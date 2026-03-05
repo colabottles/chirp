@@ -16,32 +16,50 @@ export type Database = {
     Tables: {
       accessibility_prefs: {
         Row: {
+          accent_color: string
           alt_badge_size: string
           created_at: string
+          focus_indicator: string
           high_contrast: boolean
           id: string
+          line_spacing: string
+          reduce_flashing: boolean
           reduce_motion: boolean
           require_alt_text: boolean
+          text_size: string
+          theme: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          accent_color?: string
           alt_badge_size?: string
           created_at?: string
+          focus_indicator?: string
           high_contrast?: boolean
           id?: string
+          line_spacing?: string
+          reduce_flashing?: boolean
           reduce_motion?: boolean
           require_alt_text?: boolean
+          text_size?: string
+          theme?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          accent_color?: string
           alt_badge_size?: string
           created_at?: string
+          focus_indicator?: string
           high_contrast?: boolean
           id?: string
+          line_spacing?: string
+          reduce_flashing?: boolean
           reduce_motion?: boolean
           require_alt_text?: boolean
+          text_size?: string
+          theme?: string
           updated_at?: string
           user_id?: string
         }

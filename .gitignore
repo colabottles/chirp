@@ -138,4 +138,5 @@ dist
 .netlify
 
 # Misc
-/supabase
+supabase/
+.supabase/

@@ -258,6 +258,61 @@
       </NuxtLink>
     </p>
 
+    <!-- Quick theme toggle -->
+    <ClientOnly>
+      <button
+        v-if="user"
+        class="nav-theme-btn"
+        :aria-label="`Switch theme, current: ${currentThemeLabel}`"
+        @click="cycleTheme">
+
+      <!-- System (follows OS) -->
+      <svg v-if="a11yPrefs.theme === 'system'" xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+        aria-hidden="true" focusable="false">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+        <line x1="8" y1="21" x2="16" y2="21" />
+        <line x1="12" y1="17" x2="12" y2="21" />
+      </svg>
+
+      <!-- Light -->
+      <svg v-else-if="a11yPrefs.theme === 'light'" xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+        aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </svg>
+
+      <!-- Dark -->
+      <svg v-else-if="a11yPrefs.theme === 'dark'" xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+        aria-hidden="true" focusable="false">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+
+      <!-- High contrast -->
+      <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+        width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+        aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 3v18M12 3a9 9 0 0 1 0 18" />
+      </svg>
+
+        <span class="nav-theme-label">Theme Switcher</span>
+      </button>
+    </ClientOnly>
+
     <!-- At the bottom of NavSidebar, replacing <UserAccountMenu /> -->
     <section v-if="user && userProfile" class="nav-profile" aria-label="Account menu">
       <button
@@ -306,6 +361,27 @@ const { open } = useComposerModal()
 
 const showProfileMenu = ref(false)
 
+const { prefs: a11yPrefs, updatePrefs: updateA11yPrefs } = useAccessibilityPrefs()
+
+const themeOrder = ['system', 'light', 'dark', 'high-contrast'] as const
+
+const resolvedTheme = computed(() => {
+  const t = a11yPrefs.value.theme
+  if (t === 'light') return 'light'
+  if (t === 'high-contrast') return 'high-contrast'
+  if (t === 'dark') return 'dark'
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: light)').matches
+    ? 'light' : 'dark'
+})
+
+const currentThemeLabel = computed(() => a11yPrefs.value.theme)
+
+async function cycleTheme() {
+  const idx = themeOrder.indexOf(a11yPrefs.value.theme as typeof themeOrder[number])
+  const next = themeOrder[(idx + 1) % themeOrder.length]
+  await updateA11yPrefs({ theme: next })
+}
+
 onMounted(async () => {
   await useSupabaseClient().auth.getSession()
   pending.value = false
@@ -321,16 +397,46 @@ function handleOpenComposer() {
 </script>
 
 <style scoped>
-  .nav-profile {
-    position: relative;
-  }
+.nav-profile {
+  position: relative;
+}
 
-  .nav-profile-btn svg:last-of-type {
-    color: #9ca3af;
-  }
+.nav-profile-btn svg:last-of-type {
+  color: #9ca3af;
+}
 
-  .nav-profile-btn:hover svg:last-of-type,
-  .nav-profile-btn:focus-visible svg:last-of-type {
-    color: #e5e7eb;
-  }
+.nav-profile-btn:hover svg:last-of-type,
+.nav-profile-btn:focus-visible svg:last-of-type {
+  color: #e5e7eb;
+}
+
+.nav-theme-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--color-accent-dim);
+  border: 1px solid var(--color-accent-muted);
+  color: var(--color-accent);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  text-align: left;
+  margin-bottom: var(--space-2);
+}
+
+.nav-theme-btn:hover {
+  background: var(--color-accent-muted);
+  color: var(--color-accent-hover);
+  border-color: var(--color-accent);
+}
+
+.nav-theme-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 </style>

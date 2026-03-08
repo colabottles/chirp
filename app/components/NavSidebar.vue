@@ -370,8 +370,10 @@ const resolvedTheme = computed(() => {
   if (t === 'light') return 'light'
   if (t === 'high-contrast') return 'high-contrast'
   if (t === 'dark') return 'dark'
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: light)').matches
-    ? 'light' : 'dark'
+  if (import.meta.client) {
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+  }
+  return 'dark'
 })
 
 const currentThemeLabel = computed(() => a11yPrefs.value.theme)

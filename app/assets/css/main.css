@@ -86,7 +86,7 @@
   --sidebar-width: 260px;
   --feed-width: 600px;
   --aside-width: 340px;
-  --layout-max: 1280px;
+  --layout-max: 1440px;
 
   /* Borders */
   --radius-sm: 4px;
@@ -248,7 +248,7 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+  box-sizing: content-box;
   margin: 0;
   padding: 0;
 }
@@ -262,7 +262,6 @@ html {
 
 /* Respect user motion preferences — WCAG 2.3.3 */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -272,7 +271,6 @@ html {
     scroll-behavior: auto !important;
   }
 }
-
 
 /* Reset <menu> used as action toolbars */
 menu {
@@ -425,7 +423,7 @@ body {
 }
 
 /* ============================================================
-   LAYOUT — App Shell
+   LAYOUT
    ============================================================ */
 .app-layout {
   display: grid;
@@ -504,8 +502,8 @@ body {
 }
 
 .nav-logo svg {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
 }
 
@@ -1346,7 +1344,7 @@ body {
 .search-icon {
   position: absolute;
   left: var(--space-3);
-  top: 50%;
+  top: 60%;
   transform: translateY(-50%);
   color: var(--color-text-tertiary);
   pointer-events: none;

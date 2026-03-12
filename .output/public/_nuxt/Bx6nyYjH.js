@@ -1,0 +1,1 @@
+import{r as s,h as c,i as a}from"./3efwh6AR.js";const o=a(!1),n=a(),t=new Set;function p(){function r(e){n.value=e,o.value=!0}function u(){o.value=!1,n.value=void 0}function l(e){c(()=>t.delete(e)),t.add(e)}function i(e){t.forEach(f=>f(e))}return{isOpen:s(o),replyTo:s(n),open:r,close:u,onPosted:l,notifyPosted:i}}export{p as u};

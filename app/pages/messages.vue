@@ -950,6 +950,7 @@ onUnmounted(() => unsubscribe?.())
 
 /* New message button */
 .new-message-btn {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -965,6 +966,7 @@ onUnmounted(() => unsubscribe?.())
   font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-fast);
+  margin: auto;
 }
 
 .new-message-btn:hover {

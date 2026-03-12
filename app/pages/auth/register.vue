@@ -66,10 +66,8 @@
             <span class="required" aria-hidden="true">*</span>
             <span class="sr-only">(required)</span>
           </label>
-          <div style="position: relative;">
-            <span
-              style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-tertiary);"
-              aria-hidden="true">@</span>
+          <div class="form-input-wrapper form-input-wrapper--prefix">
+            <span class="form-input-prefix" aria-hidden="true">@</span>
             <input
               id="username"
               v-model="username"
@@ -84,7 +82,7 @@
               @input="checkUsername" />
           </div>
           <div id="username-hint" class="form-hint">
-            3–30 characters. Letters, numbers, and underscores only.
+            3-30 characters. Letters, numbers, and underscores only.
           </div>
           <div v-if="errors.username" id="username-error" class="form-error" role="alert">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14"
@@ -140,7 +138,7 @@
             <span class="required" aria-hidden="true">*</span>
             <span class="sr-only">(required)</span>
           </label>
-          <div style="position: relative;">
+          <div class="form-input-wrapper">
             <input
               id="reg-password"
               v-model="password"
@@ -153,7 +151,7 @@
               :aria-describedby="`password-strength${errors.password ? ' reg-password-error' : ''}`" />
             <button
               type="button"
-              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-text-tertiary); cursor: pointer; padding: 4px;"
+              class="form-input-toggle"
               :aria-label="showPassword ? 'Hide password' : 'Show password'"
               :aria-pressed="showPassword"
               @click="showPassword = !showPassword">

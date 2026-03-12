@@ -1,4 +1,4 @@
-import { ref, watch, readonly } from 'vue'
+import { ref, watch } from 'vue'
 import type { Database } from '~/types/database.types'
 
 type AccentColor =
@@ -125,8 +125,15 @@ export function useAccessibilityPrefs() {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       .select('*')
-      .eq('user_id', session.value.user.id)
       .single()
+
+    console.log('upsert data:', data)
+    console.log('upsert error:', error)
+
+    if (error) {
+      console.error('updatePrefs error:', error)
+      return
+    }
 
     if (data) {
       prefs.value = castPrefs(data as unknown as AccessibilityPrefs)

@@ -56,7 +56,7 @@
             Password <span class="required" aria-hidden="true">*</span><span
               class="sr-only">(required)</span>
           </label>
-          <div style="position: relative;">
+          <div class="form-input-wrapper">
             <input id="password" v-model="password" :type="showPassword ? 'text' : 'password'"
               class="form-input"
               placeholder="Your password" autocomplete="current-password"
@@ -64,9 +64,10 @@
               :aria-invalid="!!errors.password ? 'true' : undefined"
               :aria-describedby="errors.password ? 'password-error' : undefined" required />
             <button type="button"
-              style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-text-tertiary); cursor: pointer; padding: 4px;"
+              class="form-input-toggle"
               :aria-label="showPassword ? 'Hide password' : 'Show password'"
-              :aria-pressed="showPassword ? 'true' : 'false'" @click="showPassword = !showPassword">
+              :aria-pressed="showPassword ? 'true' : 'false'"
+              @click="showPassword = !showPassword">
               <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                 width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
                 aria-hidden="true">
@@ -92,12 +93,8 @@
           </div>
         </div>
 
-        <div
-          style="text-align: right; margin-top: calc(-1 * var(--space-2)); margin-bottom: var(--space-4);">
-          <NuxtLink to="/auth/forgot-password"
-            style="color: var(--color-accent); font-size: var(--text-sm); text-decoration: none;">
-            Forgot password?
-          </NuxtLink>
+        <div class="form-forgot">
+          <NuxtLink to="/auth/forgot-password">Forgot password?</NuxtLink>
         </div>
 
         <div v-if="globalError" class="form-error" role="alert" aria-live="assertive"

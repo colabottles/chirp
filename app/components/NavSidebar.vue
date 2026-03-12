@@ -44,7 +44,7 @@
               viewBox="0 0 24 24"
               width="24"
               height="24"
-              :fill="route.path === '/' ? 'currentColor' : 'none'"
+              fill="none"
               stroke="currentColor"
               stroke-width="2"
               aria-hidden="true"
@@ -70,7 +70,7 @@
               viewBox="0 0 24 24"
               width="24"
               height="24"
-              :fill="route.path.startsWith('/explore') ? 'currentColor' : 'none'"
+              fill="none"
               stroke="currentColor"
               stroke-width="2"
               aria-hidden="true"
@@ -95,7 +95,7 @@
               viewBox="0 0 24 24"
               width="24"
               height="24"
-              :fill="route.path === '/notifications' ? 'currentColor' : 'none'"
+              fill="none"
               stroke="currentColor"
               stroke-width="2"
               aria-hidden="true"
@@ -123,7 +123,7 @@
               viewBox="0 0 24 24"
               width="24"
               height="24"
-              :fill="route.path === '/messages' ? 'currentColor' : 'none'"
+              fill="none"
               stroke="currentColor"
               stroke-width="2"
               aria-hidden="true"
@@ -147,7 +147,7 @@
               viewBox="0 0 24 24"
               width="24"
               height="24"
-              :fill="route.path === '/bookmarks' ? 'currentColor' : 'none'"
+              fill="none"
               stroke="currentColor"
               stroke-width="2"
               aria-hidden="true"
@@ -214,7 +214,7 @@
               viewBox="0 0 24 24"
               width="24"
               height="24"
-              :fill="route.path === '/settings' ? 'currentColor' : 'none'"
+              fill="none"
               stroke="currentColor"
               stroke-width="2"
               aria-hidden="true"
@@ -266,18 +266,8 @@
         :aria-label="`Switch theme, current: ${currentThemeLabel}`"
         @click="cycleTheme">
 
-      <!-- System (follows OS) -->
-      <svg v-if="a11yPrefs.theme === 'system'" xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-        aria-hidden="true" focusable="false">
-        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-        <line x1="8" y1="21" x2="16" y2="21" />
-        <line x1="12" y1="17" x2="12" y2="21" />
-      </svg>
-
       <!-- Light -->
-      <svg v-else-if="a11yPrefs.theme === 'light'" xmlns="http://www.w3.org/2000/svg"
+      <svg v-if="a11yPrefs.theme === 'light'" xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
         aria-hidden="true" focusable="false">
@@ -363,7 +353,7 @@ const showProfileMenu = ref(false)
 
 const { prefs: a11yPrefs, updatePrefs: updateA11yPrefs } = useAccessibilityPrefs()
 
-const themeOrder = ['system', 'light', 'dark', 'high-contrast'] as const
+const themeOrder = ['light', 'dark', 'high-contrast'] as const
 
 const resolvedTheme = computed(() => {
   const t = a11yPrefs.value.theme
@@ -404,19 +394,19 @@ function handleOpenComposer() {
 }
 
 .nav-profile-btn svg:last-of-type {
-  color: #9ca3af;
+  color: var(--color-accent-dim);
 }
 
 .nav-profile-btn:hover svg:last-of-type,
 .nav-profile-btn:focus-visible svg:last-of-type {
-  color: #e5e7eb;
+  color: var(--color-accent);
 }
 
 .nav-theme-btn {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  width: 100%;
+  width: auto;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-full);
   background: var(--color-accent-dim);

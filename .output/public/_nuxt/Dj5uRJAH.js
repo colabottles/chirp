@@ -1,0 +1,1 @@
+import{_ as t}from"./DlAUqK2U.js";import{o as a,c as o,a as s,W as n}from"./3efwh6AR.js";const c={},r={class:"auth-page"},_={id:"main-content",tabindex:"-1"};function d(e,i){return a(),o("div",r,[s("main",_,[n(e.$slots,"default")])])}const m=t(c,[["render",d]]);export{m as default};

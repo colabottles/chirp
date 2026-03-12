@@ -676,11 +676,13 @@ watch(session, (s) => {
 }
 
 .settings-nav-item:hover {
+  box-sizing: border-box;
   background: var(--color-surface-2);
   color: var(--color-text-primary);
 }
 
 .settings-nav-item.active {
+  box-sizing: border-box;
   color: var(--color-accent);
   background: var(--color-accent-dim);
   font-weight: 700;

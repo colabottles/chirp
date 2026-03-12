@@ -1,6 +1,6 @@
 /* ============================================================
    Chirp — Main Stylesheet
-   Design: Nuxt brand colors — green accent on zinc dark
+   Design: Brand colors — orange accent on zinc dark
    Fonts: Zalando Sans Expanded (headings) + DM Sans (body)
    WCAG 2.2 AA/AAA compliant
    ============================================================ */
@@ -23,11 +23,11 @@
   --color-text-tertiary: #71717a;
   --color-text-inverse: #18181b;
 
-  /* Accent — Nuxt Green */
-  --color-accent: #00dc82;
-  --color-accent-hover: #00f090;
-  --color-accent-muted: rgba(0, 220, 130, 0.12);
-  --color-accent-dim: rgba(0, 220, 130, 0.06);
+  /* Accent — Chirp Orange */
+  --color-accent: #F67515;
+  --color-accent-hover: #E05E00;
+  --color-accent-muted: rgba(246, 117, 21, 0.12);
+  --color-accent-dim: rgba(246, 117, 21, 0.06);
 
   /* Semantic Colors */
   --color-like: #f43f5e;
@@ -99,7 +99,7 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
-  --shadow-accent: 0 0 20px rgba(0, 220, 130, 0.15);
+  --shadow-accent: 0 0 20px rgba(246, 117, 21, 0.15);
 
   /* Transitions */
   --transition-fast: 120ms ease;
@@ -119,7 +119,7 @@
   --focus-ring-offset: 0 0 0 5px var(--color-accent);
 }
 
-/* Light theme (optional) */
+/* Light theme */
 [data-theme="light"] {
   --color-bg: #f4f4f5;
   --color-surface: #ffffff;
@@ -145,10 +145,10 @@
   --color-text-secondary: #eeeeee;
   --color-text-tertiary: #cccccc;
   --color-text-inverse: #000000;
-  --color-accent: #00ff99;
-  --color-accent-hover: #00ffaa;
-  --color-accent-muted: rgba(0, 255, 153, 0.2);
-  --color-accent-dim: rgba(0, 255, 153, 0.1);
+  --color-accent: #FF8C2A;
+  --color-accent-hover: #F67515;
+  --color-accent-muted: rgba(255, 140, 42, 0.2);
+  --color-accent-dim: rgba(255, 140, 42, 0.1);
   --color-like: #ff6b8a;
   --color-repost: #00ff99;
   --color-error: #ff4d6a;
@@ -158,13 +158,6 @@
 }
 
 /* Theme color picker */
-[data-accent="chirp"] {
-  --color-accent: #00DC82;
-  --color-accent-dim: #00DC8220;
-  --color-accent-muted: #00DC8240;
-  --color-accent-hover: #00C470;
-}
-
 [data-accent="teal"] {
   --color-accent: #0D9488;
   --color-accent-dim: #0D948820;
@@ -208,10 +201,10 @@
 }
 
 [data-accent="orange"] {
-  --color-accent: #EA580C;
-  --color-accent-dim: #EA580C20;
-  --color-accent-muted: #EA580C40;
-  --color-accent-hover: #C2410C;
+  --color-accent: #F67515;
+  --color-accent-dim: #F6751520;
+  --color-accent-muted: #F6751540;
+  --color-accent-hover: #E05E00;
 }
 
 [data-accent="blue"] {
@@ -262,6 +255,7 @@ html {
 
 /* Respect user motion preferences — WCAG 2.3.3 */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -435,7 +429,6 @@ body {
   min-height: 100vh;
 }
 
-/* Responsive: Collapse aside on medium screens */
 @media (max-width: 1100px) {
   .app-layout {
     grid-template-columns: var(--sidebar-width) 1fr;
@@ -447,13 +440,11 @@ body {
   }
 }
 
-/* Responsive: Mobile — bottom nav */
 @media (max-width: 700px) {
   .app-layout {
     grid-template-columns: 1fr;
     grid-template-areas: "main";
     padding-bottom: 64px;
-    /* height of mobile nav */
   }
 
   .app-nav {
@@ -515,8 +506,6 @@ body {
   flex: 1;
 }
 
-/* .nav-item {} */
-
 .nav-link {
   display: flex;
   align-items: center;
@@ -558,7 +547,6 @@ body {
   transform: scale(1.1);
 }
 
-/* Notification badge */
 .nav-badge {
   position: absolute;
   top: 4px;
@@ -574,14 +562,13 @@ body {
   text-align: center;
 }
 
-/* Post button in nav */
 .nav-post-btn {
   margin-top: var(--space-4);
   margin-bottom: var(--space-6);
-  width: 100%;
+  width: auto;
   padding: var(--space-4);
   background: var(--color-accent);
-  color: var(--color-text-inverse);
+  color: #0e0a0a;
   border: none;
   border-radius: var(--radius-full);
   font-family: var(--font-display);
@@ -610,7 +597,6 @@ body {
   transform: translateY(0);
 }
 
-/* Profile mini card at bottom of nav */
 .nav-profile {
   margin-top: var(--space-4);
   padding-top: var(--space-4);
@@ -629,6 +615,7 @@ body {
   cursor: pointer;
   transition: background var(--transition-fast);
   text-align: left;
+  box-sizing: border-box;
 }
 
 .nav-profile-btn:hover {
@@ -713,7 +700,6 @@ body {
   transition: color var(--transition-fast);
   position: relative;
   min-width: 44px;
-  /* WCAG touch target 2.5.5 */
   min-height: 44px;
   justify-content: center;
 }
@@ -737,7 +723,6 @@ body {
   min-height: 100vh;
 }
 
-/* Feed tabs */
 .feed-tabs {
   position: sticky;
   top: 0;
@@ -912,7 +897,7 @@ body {
 .composer-submit-btn {
   padding: var(--space-2) var(--space-5);
   background: var(--color-accent);
-  color: var(--color-text-inverse);
+  color: #0e0a0a;
   border: none;
   border-radius: var(--radius-full);
   font-family: var(--font-display);
@@ -971,7 +956,6 @@ body {
   background: var(--color-surface);
 }
 
-/* Repost indicator */
 .post-repost-banner {
   grid-column: 1 / -1;
   display: flex;
@@ -1040,14 +1024,7 @@ body {
   font-size: var(--text-lg);
 }
 
-/* Reset <menu> used as action toolbars */
-menu {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-body {
+.post-body {
   flex: 1;
   min-width: 0;
 }
@@ -1156,7 +1133,6 @@ body {
   font-weight: 500;
 }
 
-/* Post image */
 .post-image {
   margin-bottom: var(--space-3);
   border-radius: var(--radius-lg);
@@ -1172,7 +1148,6 @@ body {
   display: block;
 }
 
-/* Quoted post */
 .post-quote {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
@@ -1189,7 +1164,6 @@ body {
   background: var(--color-surface-2);
 }
 
-/* Post actions toolbar */
 .post-actions {
   display: flex;
   align-items: center;
@@ -1211,7 +1185,6 @@ body {
   cursor: pointer;
   transition: all var(--transition-fast);
   min-width: 44px;
-  /* WCAG 2.5.5 touch target */
   min-height: 44px;
   justify-content: center;
 }
@@ -1222,14 +1195,12 @@ body {
   min-width: 1.5ch;
 }
 
-/* Reply button */
 .post-action-btn.reply:hover,
 .post-action-btn.reply:focus-visible {
   color: var(--color-reply);
   background: var(--color-reply-bg);
 }
 
-/* Repost button */
 .post-action-btn.repost:hover,
 .post-action-btn.repost:focus-visible {
   color: var(--color-repost);
@@ -1240,7 +1211,6 @@ body {
   color: var(--color-repost);
 }
 
-/* Like button */
 .post-action-btn.like:hover,
 .post-action-btn.like:focus-visible {
   color: var(--color-like);
@@ -1269,7 +1239,6 @@ body {
   }
 }
 
-/* Bookmark button */
 .post-action-btn.bookmark:hover,
 .post-action-btn.bookmark:focus-visible {
   color: var(--color-bookmark);
@@ -1285,7 +1254,6 @@ body {
   outline-offset: 2px;
 }
 
-/* Views count */
 .post-views {
   display: flex;
   align-items: center;
@@ -1310,12 +1278,12 @@ body {
   gap: var(--space-4);
 }
 
-/* Search */
 .search-box {
   position: relative;
 }
 
 .search-input {
+  box-sizing: border-box;
   width: 100%;
   background: var(--color-surface-2);
   border: 1px solid transparent;
@@ -1350,7 +1318,6 @@ body {
   pointer-events: none;
 }
 
-/* Trending topics card */
 .trending-card,
 .follow-suggestions-card {
   background: var(--color-surface);
@@ -1368,7 +1335,6 @@ body {
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-/* Trend item */
 .trend-item {
   display: block;
   padding: var(--space-3) var(--space-5);
@@ -1409,7 +1375,6 @@ body {
   font-size: var(--text-sm);
 }
 
-/* Who to follow */
 .follow-user-item {
   display: flex;
   align-items: center;
@@ -1511,7 +1476,7 @@ body {
   display: grid;
   place-items: center;
   padding: var(--space-6);
-  background: radial-gradient(ellipse at 30% 20%, rgba(0, 212, 180, 0.04) 0%, transparent 60%),
+  background: radial-gradient(ellipse at 30% 20%, rgba(246, 117, 21, 0.04) 0%, transparent 60%),
     var(--color-bg);
 }
 
@@ -1523,6 +1488,8 @@ body {
   border-radius: var(--radius-xl);
   padding: var(--space-10) var(--space-8);
   box-shadow: var(--shadow-lg);
+  /* auth card itself needs border-box so padding stays inside max-width */
+  box-sizing: border-box;
 }
 
 .auth-logo {
@@ -1562,7 +1529,7 @@ body {
   text-align: center;
 }
 
-/* Form elements */
+/* ── Form elements ─────────────────────────────────────── */
 .form-group {
   margin-bottom: var(--space-4);
 }
@@ -1580,7 +1547,10 @@ body {
   margin-left: var(--space-1);
 }
 
+/* Selective border-box on inputs so width:100% + padding
+   doesn't overflow the card under the global content-box reset */
 .form-input {
+  box-sizing: border-box;
   width: 100%;
   background: var(--color-surface-2);
   border: 1px solid var(--color-border);
@@ -1589,14 +1559,19 @@ body {
   color: var(--color-text-primary);
   font-family: var(--font-body);
   font-size: var(--text-base);
-  transition: all var(--transition-fast);
+  line-height: var(--leading-snug);
+  transition: border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .form-input::placeholder {
   color: var(--color-text-tertiary);
 }
 
-.form-input:hover {
+.form-input:hover:not(:focus):not([aria-invalid="true"]) {
   border-color: var(--color-text-tertiary);
 }
 
@@ -1607,13 +1582,67 @@ body {
   box-shadow: 0 0 0 3px var(--color-accent-muted);
 }
 
-/* Error state — 1.3.1, 3.3.1 */
 .form-input[aria-invalid="true"] {
   border-color: var(--color-error);
 }
 
 .form-input[aria-invalid="true"]:focus {
   box-shadow: 0 0 0 3px var(--color-error-bg);
+}
+
+/* Input wrapper — replaces inline position:relative divs */
+.form-input-wrapper {
+  position: relative;
+}
+
+/* Input with right-side toggle (password show/hide) */
+.form-input-wrapper .form-input {
+  padding-right: 48px;
+}
+
+/* Input with left-side @ prefix */
+.form-input-wrapper--prefix .form-input {
+  padding-left: 28px;
+  padding-right: var(--space-4);
+}
+
+.form-input-prefix {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* Password show/hide toggle button */
+.form-input-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.form-input-toggle:hover {
+  color: var(--color-text-primary);
+}
+
+.form-input-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .form-error {
@@ -1631,25 +1660,59 @@ body {
   margin-top: var(--space-2);
 }
 
+/* Forgot password link */
+.form-forgot {
+  text-align: right;
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-4);
+}
+
+.form-forgot a {
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.form-forgot a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.form-forgot a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Submit button */
 .form-submit-btn {
+  box-sizing: border-box;
   width: 100%;
   padding: var(--space-4);
   background: var(--color-accent);
-  color: var(--color-text-inverse);
+  color: #ffffff;
   border: none;
   border-radius: var(--radius-md);
   font-family: var(--font-display);
   font-size: var(--text-base);
   font-weight: 700;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
   margin-top: var(--space-6);
+  letter-spacing: 0.01em;
 }
 
 .form-submit-btn:hover:not(:disabled) {
   background: var(--color-accent-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-accent);
+}
+
+.form-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .form-submit-btn:disabled {
@@ -2146,7 +2209,6 @@ body {
   margin: 0;
 }
 
-/* Live region for dynamic content announcements */
 .live-region {
   position: absolute;
   width: 1px;
@@ -2155,7 +2217,6 @@ body {
   clip: rect(0, 0, 0, 0);
 }
 
-/* Error boundary */
 .error-boundary {
   padding: var(--space-8);
   text-align: center;
@@ -2184,7 +2245,6 @@ body {
 /* ============================================================
    CONTENT FILTERS — Settings page
    ============================================================ */
-
 .filter-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -2272,7 +2332,6 @@ body {
 /* ============================================================
    AUTH — OAuth buttons & divider
    ============================================================ */
-
 .oauth-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -2281,6 +2340,7 @@ body {
 }
 
 .oauth-btn {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2300,7 +2360,7 @@ body {
 
 .oauth-btn:hover:not(:disabled) {
   background: var(--color-surface-3);
-  border-color: var(--color-border);
+  border-color: var(--color-text-tertiary);
 }
 
 .oauth-btn:focus-visible {
@@ -2324,7 +2384,6 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Smaller variant used in the expandable grid */
 .oauth-btn-sm {
   padding: var(--space-2) var(--space-2);
   font-size: var(--text-xs);
@@ -2379,7 +2438,6 @@ body {
   white-space: nowrap;
 }
 
-/* On narrow auth cards, collapse to single column */
 @media (max-width: 400px) {
 
   .oauth-grid,

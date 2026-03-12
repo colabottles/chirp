@@ -3,7 +3,7 @@
     <article class="auth-card" aria-labelledby="login-title">
       <header class="auth-logo">
         <svg id="svg" version="1.1" xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="400"
+          xmlns:xlink="http://www.w3.org/1999/xlink" width="60" height="60"
           viewBox="0, 0, 400,400">
           <g id="svgg">
             <path id="path0"

@@ -1690,7 +1690,7 @@ body {
   width: 100%;
   padding: var(--space-4);
   background: var(--color-accent);
-  color: #ffffff;
+  color: #0e0a0a;
   border: none;
   border-radius: var(--radius-md);
   font-family: var(--font-display);

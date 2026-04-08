@@ -5,7 +5,7 @@ import type { Post } from '~/types'
 export function usePostActions() {
   const supabase = useSupabaseClient()
   const session = useSupabaseSession() // ← replace useSupabaseUser()
-  const { announce } = useAnnouncer()
+  const { announce } = useA11yAnnouncer()
   const { showToast } = useToast()
 
   async function toggleLike(post: Post) {

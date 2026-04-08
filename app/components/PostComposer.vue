@@ -210,14 +210,14 @@
               {{ images.length }}/{{ MAX_IMAGES }}
             </span>
           </li>
-          <li style="position: relative;">
+          <li>
             <button
+              ref="emojiTriggerEl"
               type="button"
+              @click="toggleEmojiPicker"
               class="composer-action-btn"
               aria-label="Add emoji"
-              :aria-expanded="showEmojiPicker"
-              aria-haspopup="dialog"
-              @click="showEmojiPicker = !showEmojiPicker">
+              :aria-expanded="showEmojiPicker">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"
                 fill="none" stroke="var(--color-accent)" stroke-width="2" aria-hidden="true"
                 focusable="false">
@@ -228,10 +228,14 @@
 
               </svg>
             </button>
-            <EmojiPicker
-              v-if="showEmojiPicker"
-              @select="insertEmoji"
-              @close="showEmojiPicker = false" />
+            <Teleport to="body">
+              <EmojiPicker
+                v-if="showEmojiPicker"
+                :style="pickerStyle"
+                style="position: fixed; z-index: 9999;"
+                @select="onEmojiSelect"
+                @close="showEmojiPicker = false" />
+            </Teleport>
           </li>
         </menu>
 
@@ -316,7 +320,7 @@ const uid = useId()
 const supabase = useSupabaseClient<Database>()
 const session = useSupabaseSession()
 const { userProfile } = useProfile()
-const { announce } = useAnnouncer()
+const { announce } = useA11yAnnouncer()
 const { showToast } = useToast()
 const { prefs: a11yPrefs } = useAccessibilityPrefs()
 
@@ -332,6 +336,9 @@ const fileInputEl = ref<HTMLInputElement>()
 
 const MAX_CHARS = 140
 const MAX_IMAGES = 4
+
+const emojiTriggerEl = ref<HTMLButtonElement>()
+const pickerStyle = ref<Record<string, string>>({})
 
 const requireAltText = computed(() => a11yPrefs.value?.require_alt_text ?? false)
 const charsRemaining = computed(() => MAX_CHARS - content.value.length)
@@ -411,6 +418,24 @@ function insertEmoji(emoji: string) {
     el.focus()
   })
   showEmojiPicker.value = false
+}
+
+function toggleEmojiPicker() {
+  if (!showEmojiPicker.value) {
+    const rect = emojiTriggerEl.value!.getBoundingClientRect()
+    const pickerHeight = 360
+    const wouldOverflow = rect.bottom + 8 + pickerHeight > window.innerHeight
+
+    pickerStyle.value = {
+      bottom: '100px',
+      left: '800px',
+    }
+  }
+  showEmojiPicker.value = !showEmojiPicker.value
+}
+
+function onEmojiSelect(emoji: string) {
+  insertEmoji(emoji)
 }
 
 function dismissAndPost() {

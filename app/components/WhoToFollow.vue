@@ -48,7 +48,7 @@ import type { Profile } from '~/types'
 
 const supabase = useSupabaseClient<Database>()
 const user = useSupabaseUser()
-const { announce } = useAnnouncer()
+const { announce } = useA11yAnnouncer()
 const { showToast } = useToast()
 
 const suggestions = ref<Profile[]>([])

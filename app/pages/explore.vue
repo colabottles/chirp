@@ -25,7 +25,7 @@
     </div>
 
     <!-- Trending hashtags when no search -->
-    <div v-if="!query && !activeTag">
+    <div v-if="!query?.trim() && !activeTag?.trim()">
       <div class="feed-tabs">
         <h2 class="feed-tabs-header">Trending topics</h2>
       </div>
@@ -96,8 +96,8 @@
             <img v-if="person.avatar_url" :src="person.avatar_url" :alt="person.display_name"
               width="44"
               height="44" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" />
-            <div v-else class="post-avatar-placeholder" style="height: 100%;">{{
-              person.display_name[0].toUpperCase() }}</div>
+            <div v-else class="post-avatar-placeholder" style="height: 100%;">
+              {{ person.display_name?.[0]?.toUpperCase() ?? '?' }} </div>
           </NuxtLink>
           <div class="follow-user-info">
             <NuxtLink :to="`/profile/${person.username}`" class="follow-user-name">{{
@@ -136,41 +136,59 @@ const loadingPosts = ref(false)
 const loadingPeople = ref(false)
 
 async function fetchTrends() {
-  const { data } = await supabase.from('hashtags').select('*').order('post_count', { ascending: false }).limit(10)
+  const { data, error } = await supabase
+    .from('hashtags')
+    .select('*')
+    .order('post_count', { ascending: false })
+    .limit(10)
+
+  if (error) {
+    console.error('fetchTrends error:', error)
+    return
+  }
+
+  console.log('trends:', data)
+
   trends.value = (data ?? []) as Trend[]
 }
 
 async function searchPosts(q: string) {
   loadingPosts.value = true
+
   const { data } = await supabase
     .from('posts')
     .select('*, profile:profiles(*)')
     .textSearch('content', q, { type: 'websearch' })
     .order('created_at', { ascending: false })
     .limit(20)
+
   postResults.value = (data ?? []) as Post[]
   loadingPosts.value = false
 }
 
 async function searchPeople(q: string) {
   loadingPeople.value = true
+
   const { data } = await supabase
     .from('profiles')
     .select('*')
     .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
     .limit(20)
+
   peopleResults.value = (data ?? []) as Profile[]
   loadingPeople.value = false
 }
 
 async function searchByTag(tag: string) {
   loadingPosts.value = true
+
   const { data } = await supabase
     .from('posts')
     .select('*, profile:profiles(*)')
     .ilike('content', `%#${tag}%`)
     .order('created_at', { ascending: false })
     .limit(30)
+
   postResults.value = (data ?? []) as Post[]
   loadingPosts.value = false
 }
@@ -189,6 +207,7 @@ watch(
     activeTag.value = (route.query.tag as string) || ''
 
     if (activeTag.value) {
+      query.value = '' // 🔥 important
       searchByTag(activeTag.value)
     } else if (query.value) {
       searchPosts(query.value)

@@ -225,7 +225,7 @@ definePageMeta({ layout: 'default' })
 useHead({ title: 'Content Filters — Chirp' })
 
 const { prefs, keywords, blockedAccountsList, mutedAccountsList, updatePrefs, addKeyword, removeKeyword, unblockAccount, unmuteAccount, loadBlockedList, loadMutedList } = useContentFilters()
-const { announce } = useAnnouncer()
+const { announce } = useA11yAnnouncer()
 const { showToast } = useToast()
 
 const newKeyword = ref('')

@@ -1,5 +1,10 @@
 <template>
-  <div class="emoji-picker" ref="pickerEl" role="dialog" aria-label="Emoji picker"
+  <div
+    class="emoji-picker"
+    :class="{ 'is-flipped': flipped }"
+    ref="pickerEl"
+    role="dialog"
+    aria-label="Emoji picker"
     aria-modal="false">
     <!-- Search -->
     <div class="emoji-search-wrap">
@@ -66,6 +71,7 @@ const emit = defineEmits<{
 
 const searchId = useId()
 const pickerEl = ref<HTMLElement>()
+const flipped = ref(false)
 const searchEl = ref<HTMLInputElement>()
 const query = ref('')
 const activeCategory = ref('smileys')
@@ -992,7 +998,16 @@ function handleOutsideClick(e: MouseEvent) {
 }
 
 onMounted(() => {
-  nextTick(() => searchEl.value?.focus())
+  nextTick(() => {
+    searchEl.value?.focus()
+    // Check if picker would overflow viewport bottom
+    if (pickerEl.value) {
+      const rect = pickerEl.value.getBoundingClientRect()
+      if (rect.bottom > window.innerHeight - 16) {
+        flipped.value = true
+      }
+    }
+  })
   document.addEventListener('mousedown', handleOutsideClick)
 })
 
@@ -1003,11 +1018,10 @@ onUnmounted(() => {
 
 <style scoped>
 .emoji-picker {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  z-index: 200;
+  bottom: 100px;
+  left: 450px;
   width: 320px;
+  max-height: 360px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
@@ -1016,6 +1030,20 @@ onUnmounted(() => {
   flex-direction: column;
   overflow: hidden;
   animation: pickerIn 120ms ease;
+}
+
+.emoji-grid-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-2);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.emoji-picker.is-flipped {
+  top: auto;
+  bottom: calc(100% + 8px);
 }
 
 @keyframes pickerIn {
@@ -1055,7 +1083,6 @@ onUnmounted(() => {
 
 .emoji-tabs {
   display: flex;
-  overflow-x: auto;
   padding: var(--space-1) var(--space-2);
   gap: var(--space-1);
   border-bottom: 1px solid var(--color-border-subtle);

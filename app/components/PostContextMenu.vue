@@ -103,7 +103,7 @@ const emit = defineEmits<{
 const session = useSupabaseSession()
 const { deletePost } = usePostActions()
 const { showToast } = useToast()
-const { announce } = useAnnouncer()
+const { announce } = useA11yAnnouncer()
 const { blockAccount, unblockAccount, muteAccount, unmuteAccount, isBlocked, isMuted } = useContentFilters()
 const menuEl = ref<HTMLElement>()
 

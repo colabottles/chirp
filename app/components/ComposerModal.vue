@@ -53,7 +53,7 @@ import type { Post } from '~/types'
 const { isOpen, replyTo, close, notifyPosted } = useComposerModal()
 const modalEl = ref<HTMLElement>()
 const closeBtn = ref<HTMLElement>()
-const { announce } = useAnnouncer()
+const { announce } = useA11yAnnouncer()
 
 // Trap focus within modal when open — WCAG 2.1.2
 let previouslyFocused: HTMLElement | null = null

@@ -1,4 +1,4 @@
-// composables/useAnnouncer.ts
+// composables/useA11yAnnouncer.ts
 // Provides live region announcements for screen readers
 // Supports WCAG 4.1.3 Status Messages (AA)
 
@@ -12,7 +12,7 @@ const state = reactive<AnnouncerState>({
   politeness: 'polite',
 })
 
-export function useAnnouncer() {
+export function useA11yAnnouncer() {
   const liveAnnouncement = computed(() => state.message)
 
   function announce(message: string, politeness: 'polite' | 'assertive' = 'polite') {

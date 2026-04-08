@@ -264,7 +264,7 @@ function onProfileSaved(updated: Profile) {
 }
 
 async function fetchFollowStatus() {
-  if (session.value?.user?.id || !profile.value?.id) return
+  if (!session.value?.user?.id || !profile.value?.id) return
   const { data } = await supabase
     .from('follows')
     .select('id')
@@ -288,8 +288,14 @@ async function fetchUserPosts() {
 }
 
 async function toggleFollow() {
-  if (session.value?.user?.id || !profile.value) return
-  const { announce } = useAnnouncer()
+  if (!session.value?.user?.id || !profile.value) return
+  const { announce } = useA11yAnnouncer()
+
+  console.log('toggleFollow:', {
+    follower_id: user.value.id,
+    following_id: profile.value.id,
+    isFollowing: isFollowing.value
+  })
 
   if (isFollowing.value) {
     await supabase.from('follows')
@@ -300,8 +306,9 @@ async function toggleFollow() {
     profile.value.followers_count--
     announce(`Unfollowed ${profile.value.display_name}.`)
   } else {
-    await supabase.from('follows')
+    const { error } = await supabase.from('follows')
       .insert({ follower_id: user.value.id, following_id: profile.value.id })
+    if (error) { console.error('Follow error:', error); return }
     isFollowing.value = true
     profile.value.followers_count++
     announce(`Now following ${profile.value.display_name}.`)
@@ -323,6 +330,13 @@ function formatJoinDate(dateStr: string): string {
 watch([username, user], () => {
   if (username.value && username.value !== 'undefined') fetchProfileData()
 }, { immediate: true })
+
+// Also re-check follow status once session loads
+watch(session, (newSession) => {
+  if (newSession?.user?.id && profile.value?.id) {
+    fetchFollowStatus()
+  }
+})
 
 watch(activeTab, () => fetchUserPosts())
 </script>

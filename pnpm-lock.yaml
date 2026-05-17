@@ -33,9 +33,6 @@ importers:
       '@types/node':
         specifier: ^25.3.3
         version: 25.5.0
-      '@vue/runtime-core':
-        specifier: ^3.5.30
-        version: 3.5.30
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

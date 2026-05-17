@@ -22,8 +22,8 @@ export interface Post {
   user_id: string
   content: string
   image_url: string | null
-  image_urls: string[] | null   // multi-image
-  image_alts: string[] | null   // alt text per image
+  image_urls: readonly string[] | null
+  image_alts: readonly string[] | null  // alt text per image
   reply_to_id: string | null
   repost_of_id: string | null
   created_at: string
@@ -32,7 +32,6 @@ export interface Post {
   reposts_count: number
   replies_count: number
   views_count: number
-  // Joined
   profile?: Profile
   is_liked?: boolean
   is_reposted?: boolean
@@ -63,7 +62,6 @@ export interface Notification {
   post_id: string | null
   read: boolean
   created_at: string
-  // Joined
   actor?: Profile
   post?: Post
 }
@@ -85,7 +83,7 @@ export interface PaginatedResponse<T> {
   has_more: boolean
 }
 
-// ─── Content Filtering ───────────────────────────────────────────────────────
+// Content Filtering
 
 export interface BlockedAccount {
   id: string

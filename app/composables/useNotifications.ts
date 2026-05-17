@@ -9,6 +9,8 @@ let _initialized = false
 export function useNotifications() {
   const supabase = useSupabaseClient<Database>()
   const user = useSupabaseUser()
+  const unreadCount = useState<number>('notifications-unread', () => 0)
+  const initialized = useState<boolean>('notifications-initialized', () => false)
 
   async function fetchUnreadCount() {
     if (!user.value?.id) {
@@ -52,14 +54,15 @@ export function useNotifications() {
       .subscribe()
   }
 
-  if (!_initialized) {
-    _initialized = true
+  if (!initialized.value) {
+    initialized.value = true
     watch(user, (newUser) => {
       if (newUser?.id) {
         fetchUnreadCount()
         subscribeToNotifications()
       } else {
         unreadCount.value = 0
+        initialized.value = false // reset so it re-subscribes on next login
       }
     }, { immediate: true })
   }

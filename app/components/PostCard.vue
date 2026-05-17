@@ -31,7 +31,7 @@
       </span>
     </NuxtLink>
 
-    <!-- Post body — CSS subgrid fills remaining column -->
+    <!-- Post body -->
     <section class="post-body" :aria-labelledby="`post-author-${post.id}`">
       <!-- Header: author info + timestamp -->
       <header class="post-header">
@@ -100,13 +100,13 @@
           role="listitem">
           <img
             :src="url"
-            :alt="displayPost.image_alts?.[i] || ''"
+            :alt="localAlts[i] || ''"
             loading="lazy"
             class="post-image-thumb" />
           <AltBadge
-            :alt-text="displayPost.image_alts?.[i] ?? ''"
+            :alt-text="localAlts[i] ?? ''"
             :size="a11yPrefs.alt_badge_size ?? 'small'"
-            @click="altModal = { imageUrl: url, altText: displayPost.image_alts?.[i] ?? '', imageIndex: i }" />
+            @click="altModal = { imageUrl: url, altText: localAlts[i] ?? '', imageIndex: i }" />
         </figure>
       </div>
 
@@ -117,7 +117,7 @@
         :alt-text="altModal.altText"
         :image-index="altModal.imageIndex"
         :post-id="displayPost.id"
-        @saved="(i: number, text: string) => { if (displayPost.image_alts) displayPost.image_alts[i] = text }"
+        @saved="(i: number, text: string) => { localAlts[i] = text }"
         @close="altModal = null" />
 
       <!-- Quoted post -->
@@ -209,7 +209,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Post, Profile } from '~/types'
 
 const props = defineProps<{ post: Post; showThreadLine?: boolean }>()
@@ -222,7 +222,6 @@ const { open: openReply } = useReplyModal()
 const showMenu = ref(false)
 const isBookmarked = ref(props.post.is_bookmarked ?? false)
 
-// Keep in sync if prop changes (e.g. feed refresh)
 watch(() => props.post.is_bookmarked, (val) => {
   isBookmarked.value = val ?? false
 }, { immediate: true })
@@ -230,13 +229,25 @@ watch(() => props.post.is_bookmarked, (val) => {
 const displayPost = computed<Post>(() =>
   props.post.repost_of_id && props.post.repost_of ? props.post.repost_of as Post : props.post
 )
+
 const { prefs: a11yPrefs } = useAccessibilityPrefs()
 const altModal = ref<{ imageUrl: string; altText: string; imageIndex: number } | null>(null)
+
+// Mutable local copy of alt texts — Supabase returns readonly arrays
+const localAlts = ref<string[]>(
+  displayPost.value.image_alts ? [...displayPost.value.image_alts] : []
+)
+
+watch(() => displayPost.value.image_alts, (val) => {
+  localAlts.value = val ? [...val] : []
+}, { immediate: true })
+
 const displayProfile = computed<Profile | undefined>(() =>
   props.post.repost_of_id && (props.post.repost_of as Post)?.profile
     ? (props.post.repost_of as Post).profile
     : props.post.profile
 )
+
 const isOwn = computed<boolean>(() => !!session.value?.user && props.post.user_id === session.value.user.id)
 const isLiked = computed(() => props.post.is_liked ?? false)
 const isReposted = computed(() => props.post.is_reposted ?? false)
@@ -246,20 +257,30 @@ function parseContent(content: string): string {
   if (!content) return ''
   return content
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/#(\w+)/g, '<a href="/explore?tag=$1" class="post-hashtag" aria-label="Search hashtag $1">#$1</a>')
+    .replace(/#([A-Za-z][A-Za-z0-9_]*)/g, (match, tag) => {
+      const readable = tag.replace(/([a-z])([A-Z])/g, '$1 $2')
+      return `<a href="/explore?tag=${tag.toLowerCase()}" class="post-hashtag" aria-label="hashtag ${readable}">#${tag}</a>`
+    })
     .replace(/@(\w+)/g, '<a href="/profile/$1" class="post-mention" aria-label="View profile of $1">@$1</a>')
     .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="post-link">$1</a>')
 }
+
 const imageUrls = computed<string[]>(() => {
-  if (displayPost.value?.image_urls?.length) return displayPost.value.image_urls
+  if (displayPost.value?.image_urls?.length) return [...displayPost.value.image_urls]
   if (displayPost.value?.image_url) return [displayPost.value.image_url]
   return []
 })
 
 function handleReply() { openReply(props.post) }
 
-async function toggleLike() { if (!session.value?.user) { navigateTo('/auth/login'); return } await doLike(props.post) }
-async function toggleRepost() { if (!session.value?.user) { navigateTo('/auth/login'); return } await doRepost(props.post) }
+async function toggleLike() {
+  if (!session.value?.user) { navigateTo('/auth/login'); return }
+  await doLike(props.post)
+}
+async function toggleRepost() {
+  if (!session.value?.user) { navigateTo('/auth/login'); return }
+  await doRepost(props.post)
+}
 async function toggleBookmark() {
   if (!session.value?.user) { navigateTo('/auth/login'); return }
   const next = !isBookmarked.value
@@ -279,7 +300,10 @@ function formatRelativeTime(dateStr: string): string {
 }
 
 function formatFullDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(dateStr).toLocaleString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long',
+    day: 'numeric', hour: '2-digit', minute: '2-digit'
+  })
 }
 
 function formatCount(n: number): string {
@@ -311,12 +335,12 @@ function formatCount(n: number): string {
   grid-template-columns: 1fr 1fr;
 }
 
-.post-image-grid--3 .post-image-figure:first-child {
-  grid-column: 1 / -1;
-}
-
 .post-image-grid--4 {
   grid-template-columns: 1fr 1fr;
+}
+
+.post-image-grid--3 .post-image-figure:first-child {
+  grid-column: 1 / -1;
 }
 
 .post-image-figure {
@@ -332,5 +356,35 @@ function formatCount(n: number): string {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.post-more-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.post-more-btn:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+.post-more-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.post-more-btn svg {
+  stroke-width: 2.5;
 }
 </style>

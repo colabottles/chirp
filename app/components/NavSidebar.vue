@@ -117,7 +117,8 @@
             to="/messages"
             class="nav-link"
             :class="{ active: route.path === '/messages' }"
-            :aria-current="route.path === '/messages' ? 'page' : undefined">
+            :aria-current="route.path === '/messages' ? 'page' : undefined"
+            :aria-label="`Messages${messagesUnread > 0 ? `, ${messagesUnread} unread` : ''}`">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -132,6 +133,9 @@
                 d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
             Messages
+            <span v-if="messagesUnread > 0" class="nav-badge" aria-hidden="true">
+              {{ messagesUnread > 99 ? '99+' : messagesUnread }}
+            </span>
           </NuxtLink>
         </li>
 
@@ -347,6 +351,7 @@ const user = useSupabaseUser()
 const pending = ref(true)
 const { userProfile } = useProfile()
 const { unreadCount } = useNotifications()
+const { unreadCount: messagesUnread } = useMessages()
 const { open } = useComposerModal()
 
 const showProfileMenu = ref(false)
@@ -394,7 +399,7 @@ function handleOpenComposer() {
 }
 
 .nav-profile-btn svg:last-of-type {
-  color: var(--color-accent-dim);
+  color: var(--color-text-primary);
 }
 
 .nav-profile-btn:hover svg:last-of-type,

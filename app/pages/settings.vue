@@ -527,7 +527,7 @@ const focusIndicatorOptions = [
 const supabase = useSupabaseClient<Database>()
 const session = useSupabaseSession()
 const { showToast } = useToast()
-const { announce } = useAnnouncer()
+const { announce } = useA11yAnnouncer()
 const { prefs: a11yPrefs, updatePrefs: updateA11yPrefs } = useAccessibilityPrefs()
 
 const sections = [

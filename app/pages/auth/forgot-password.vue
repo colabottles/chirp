@@ -92,7 +92,7 @@ async function handleSubmit() {
   }
   isLoading.value = true
   const { error: err } = await supabase.auth.resetPasswordForEmail(email.value, {
-    redirectTo: `${window.location.origin}/auth/confirm`,
+    redirectTo: `${window.location.origin}/auth/reset-password`,
   })
   isLoading.value = false
   if (err) { error.value = err.message; return }

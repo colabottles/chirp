@@ -1,26 +1,19 @@
 import type { NuxtConfig } from 'nuxt/schema'
-import { defineNuxtConfig } from 'nuxt/config'
-
 /// <reference types="@nuxtjs/supabase" />
-
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
-
+  devtools: { enabled: false },
   modules: ['@nuxtjs/supabase'],
-
   supabase: {
     useSsrCookies: true,
     types: '~/types/database.types.ts',
     redirectOptions: {
       login: '/auth/login',
       callback: '/auth/confirm',
-      exclude: ['/auth/register', '/auth/forgot-password', '/auth/login', '/auth/confirm'],
+      exclude: ['/auth/register', '/auth/forgot-password', '/auth/login', '/auth/confirm', '/auth/reset-password'],
     },
   },
-
   css: ['~/assets/css/main.css'],
-
   app: {
     head: {
       htmlAttrs: { lang: 'en' },

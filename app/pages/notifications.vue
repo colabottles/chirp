@@ -35,25 +35,38 @@
     <section v-else aria-label="Notifications" aria-live="polite">
       <article v-for="notif in notifications" :key="notif.id"
         :class="['notification-item', { unread: !notif.read }]"
-        style="padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--color-border-subtle); display: flex; gap: var(--space-3); cursor: pointer; transition: background var(--transition-fast);"
-        @click="handleNotifClick(notif)" :aria-label="notifLabel(notif)" tabindex="0"
-        @keydown.enter="handleNotifClick(notif)" @keydown.space.prevent="handleNotifClick(notif)">
-        <!-- Unread indicator -->
-        <div v-if="!notif.read"
-          style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); flex-shrink: 0; margin-top: 6px;"
-          aria-hidden="true"></div>
-        <div v-else style="width: 8px; flex-shrink: 0;"></div>
+        style="padding: var(--space-4) var(--space-6); border-bottom: 1px solid var(--color-border-subtle); display: flex; gap: var(--space-3); align-items: center; transition: background var(--transition-fast);"
+        :aria-label="notifLabel(notif)">
 
-        <!-- Icon -->
-        <div :style="{ color: notifColor(notif.type), flexShrink: 0 }">
+        <!-- Read/Unread indicator -->
+        <div
+          style="flex-shrink: 0; width: 18px; display: flex; align-items: center; justify-content: center;">
+          <!-- Unread: filled red circle -->
+          <svg v-if="!notif.read"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"
+            aria-label="Unread" role="img">
+            <circle cx="12" cy="12" r="12" fill="#ef4444" />
+          </svg>
+          <!-- Read: filled green circle with white checkmark -->
+          <svg v-else
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"
+            aria-label="Read" role="img">
+            <circle cx="12" cy="12" r="12" fill="#22c55e" />
+            <polyline points="6 12 10 16 18 8" fill="none" stroke="white" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+
+        <!-- Type icon -->
+        <div :style="{ color: notifColor(notif.type), flexShrink: 0 }" aria-hidden="true">
           <svg v-if="notif.type === 'like'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-            width="22" height="22" fill="currentColor" aria-hidden="true">
+            width="22" height="22" fill="currentColor">
             <path
               d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
           <svg v-else-if="notif.type === 'follow'" xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-            stroke-width="2" aria-hidden="true">
+            stroke-width="2">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
             <line x1="19" y1="8" x2="19" y2="14" />
@@ -61,20 +74,24 @@
           </svg>
           <svg v-else-if="notif.type === 'repost'" xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
-            stroke-width="2" aria-hidden="true">
+            stroke-width="2">
             <path d="m17 1 4 4-4 4" />
             <path d="M3 11V9a4 4 0 0 1 4-4h14" />
             <path d="m7 23-4-4 4-4" />
             <path d="M21 13v2a4 4 0 0 1-4 4H3" />
           </svg>
           <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22"
-            fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         </div>
 
-        <div style="flex: 1; min-width: 0;">
-          <!-- Actor avatar -->
+        <!-- Content — clicking this navigates -->
+        <div style="flex: 1; min-width: 0; cursor: pointer;"
+          @click="handleNotifClick(notif)"
+          @keydown.enter="handleNotifClick(notif)"
+          @keydown.space.prevent="handleNotifClick(notif)"
+          tabindex="0">
           <div style="margin-bottom: var(--space-2);">
             <NuxtLink :to="`/profile/${notif.actor?.username}`"
               style="display: inline-block; width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--color-surface-3); text-decoration: none;"
@@ -87,23 +104,37 @@
               </div>
             </NuxtLink>
           </div>
-
-          <!-- Notification text -->
           <p
             style="color: var(--color-text-primary); font-size: var(--text-sm); line-height: var(--leading-snug);">
             <NuxtLink :to="`/profile/${notif.actor?.username}`"
-              style="font-weight: 700; color: inherit; text-decoration: none;">{{
-                notif.actor?.display_name }}</NuxtLink>
+              style="font-weight: 700; color: inherit; text-decoration: none;">
+              {{ notif.actor?.display_name }}
+            </NuxtLink>
             {{ notifText(notif.type) }}
           </p>
-
-          <!-- Post excerpt -->
           <p v-if="notif.post"
             style="color: var(--color-text-secondary); font-size: var(--text-sm); margin-top: var(--space-1);">
             {{ notif.post.content?.substring(0, 80) }}{{ notif.post.content?.length > 80 ? '...' :
             '' }}
           </p>
         </div>
+
+        <!-- Delete button -->
+        <button
+          :aria-label="`Delete notification from ${notif.actor?.display_name}`"
+          style="flex-shrink: 0; background: none; border: none; cursor: pointer; color: var(--color-text-tertiary); padding: var(--space-1); border-radius: var(--radius-md); transition: color var(--transition-fast), background var(--transition-fast);"
+          @click.stop="deleteNotification(notif.id)"
+          @mouseenter="(e) => (e.currentTarget as HTMLElement).style.color = '#ef4444'"
+          @mouseleave="(e) => (e.currentTarget as HTMLElement).style.color = 'var(--color-text-tertiary)'">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"
+            fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+          </svg>
+        </button>
       </article>
     </section>
   </div>
@@ -139,8 +170,17 @@ async function fetchNotifications() {
   notifications.value = (data ?? []) as Notification[]
   loading.value = false
 
-  // Mark all as read
+  // Mark all as read in DB and update local state
   await markAllRead()
+  notifications.value = notifications.value.map(n => ({ ...n, read: true }))
+}
+
+async function deleteNotification(id: string) {
+  await supabase
+    .from('notifications')
+    .delete()
+    .eq('id', id)
+  notifications.value = notifications.value.filter(n => n.id !== id)
 }
 
 function handleNotifClick(notif: Notification) {

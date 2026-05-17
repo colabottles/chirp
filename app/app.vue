@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-const { liveAnnouncement } = useAnnouncer()
+const { liveAnnouncement } = useA11yAnnouncer()
 const { applyPrefsToDOM, loadPrefs } = useAccessibilityPrefs()
 
 onMounted(async () => {

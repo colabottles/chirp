@@ -79,7 +79,6 @@
               <div class="convo-info">
                 <div class="convo-header">
                   <span class="convo-name">{{ convo.other_user.display_name }}</span>
-                  <span class="convo-time">{{ formatTime(convo.last_message_at) }}</span>
                 </div>
                 <div class="convo-preview">
                   <span class="convo-preview-text">{{ convo.last_message ?? 'No messages yet'
@@ -187,7 +186,7 @@
               <div v-else>
                 <div v-for="(msg, idx) in messages" :key="msg.id"
                   class="message-row"
-                  :class="{ 'message-row--mine': msg.sender_id === session?.id }">
+                  :class="{ 'message-row--mine': msg.sender_id === session?.user?.id }">
 
                   <!-- Date separator -->
                   <div v-if="shouldShowDateSeparator(idx)"
@@ -199,11 +198,11 @@
 
                   <!-- Bubble -->
                   <div class="message-bubble-wrapper"
-                    :class="{ 'message-bubble-wrapper--mine': msg.sender_id === session?.id }">
+                    :class="{ 'message-bubble-wrapper--mine': msg.sender_id === session?.user?.id }">
                     <div
                       class="message-bubble"
-                      :class="{ 'message-bubble--mine': msg.sender_id === session?.id }"
-                      :aria-label="`${msg.sender_id === session?.id ? 'You' : activeConversation.other_user.display_name}: ${msg.content}`">
+                      :class="{ 'message-bubble--mine': msg.sender_id === session?.user?.id }"
+                      :aria-label="`${msg.sender_id === session?.user?.id ? 'You' : activeConversation.other_user.display_name}: ${msg.content}`">
                       {{ msg.content }}
                     </div>
                     <time
@@ -230,8 +229,9 @@
                 :disabled="sending"
                 @keydown.enter.exact.prevent="sendMessage"
                 @keydown.enter.shift.exact="newMessage += '\n'"
-                @input="autoResize" ref="messageInputEl">
-      </textarea>
+                @input="autoResize"
+                ref="messageInputEl">
+              </textarea>
               <button type="submit" class="message-send-btn"
                 :disabled="!newMessage.trim() || sending"
                 :aria-label="sending ? 'Sending...' : 'Send message'"
@@ -246,64 +246,92 @@
           </form>
         </template>
       </section>
+    </div>
+  </ClientOnly>
 
-      <!-- New message modal -->
-      <div v-if="showNewMessage" class="modal-overlay" role="dialog" aria-modal="true"
-        aria-labelledby="new-message-title" @click.self="showNewMessage = false"
-        @keydown.esc="showNewMessage = false">
-        <div class="modal" style="max-width: 480px;">
-          <div class="modal-header">
-            <button class="modal-close-btn" aria-label="Close" @click="showNewMessage = false">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"
-                fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-            <h2 id="new-message-title" class="modal-title">New message</h2>
+  <!-- New message modal — outside ClientOnly so it renders immediately -->
+  <Teleport to="body">
+    <div v-if="showNewMessage" class="modal-overlay" role="dialog" aria-modal="true"
+      aria-labelledby="new-message-title" @click.self="showNewMessage = false"
+      @keydown.esc="showNewMessage = false">
+      <div class="modal" style="max-width: 480px;">
+        <div class="modal-header">
+          <button class="modal-close-btn" aria-label="Close" @click="showNewMessage = false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"
+              fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+          <h2 id="new-message-title" class="modal-title">New message</h2>
+        </div>
+
+        <div style="padding: var(--space-4);">
+          <div style="position: relative; margin-bottom: var(--space-4);">
+            <label for="recipient-search" class="sr-only">Search people</label>
+            <input id="recipient-search" v-model="recipientSearch" type="search"
+              class="form-input"
+              placeholder="Search people..." autocomplete="off"
+              @input="searchRecipients" />
           </div>
 
-          <div style="padding: var(--space-4);">
-            <div style="position: relative; margin-bottom: var(--space-4);">
-              <label for="recipient-search" class="sr-only">Search people</label>
-              <input id="recipient-search" v-model="recipientSearch" type="search"
-                class="form-input"
-                placeholder="Search people..." autocomplete="off" @input="searchRecipients" />
-            </div>
-
-            <!-- Search results -->
-            <ul v-if="recipientResults.length > 0" role="list" aria-label="Search results"
-              style="list-style: none;">
-              <li v-for="person in recipientResults" :key="person.id" class="convo-item"
-                style="width: 100%;" role="option" tabindex="0"
-                :aria-label="`Start conversation with ${person.display_name}`"
-                @click="startConversation(person)"
-                @keydown.enter.prevent="startConversation(person)"
-                @keydown.space.prevent="startConversation(person)">
-                <div class="convo-avatar" aria-hidden="true">
-                  <img v-if="person.avatar_url" :src="person.avatar_url" :alt="person.display_name"
-                    width="48" height="48" style="width: 100%; height: 100%; object-fit: cover;" />
-                  <div v-else class="post-avatar-placeholder"
-                    style="height: 100%; font-size: var(--text-base);">
-                    {{ person.display_name?.[0]?.toUpperCase() ?? '?' }}
-                  </div>
+          <ul v-if="recipientResults.length > 0" role="list" aria-label="Search results"
+            style="list-style: none;">
+            <li v-for="person in recipientResults" :key="person.id" class="convo-item"
+              style="width: 100%;" role="option" tabindex="0"
+              :aria-label="`Start conversation with ${person.display_name}`"
+              @click="startConversation(person)"
+              @keydown.enter.prevent="startConversation(person)"
+              @keydown.space.prevent="startConversation(person)">
+              <div class="convo-avatar" aria-hidden="true">
+                <img v-if="person.avatar_url" :src="person.avatar_url"
+                  :alt="person.display_name" width="48" height="48"
+                  style="width: 100%; height: 100%; object-fit: cover;" />
+                <div v-else class="post-avatar-placeholder"
+                  style="height: 100%; font-size: var(--text-base);">
+                  {{ person.display_name?.[0]?.toUpperCase() ?? '?' }}
                 </div>
-                <div class="convo-info">
-                  <span class="convo-name">{{ person.display_name }}</span>
-                  <span class="convo-preview-text">@{{ person.username }}</span>
-                </div>
-              </li>
-            </ul>
+              </div>
+              <div class="convo-info">
+                <span class="convo-name">{{ person.display_name }}</span>
+                <span class="convo-preview-text">@{{ person.username }}</span>
+              </div>
+            </li>
+          </ul>
 
-            <p v-else-if="recipientSearch && !searchingRecipients"
-              style="color: var(--color-text-tertiary); font-size: var(--text-sm); padding: var(--space-4); text-align: center;">
-              No results for "{{ recipientSearch }}"
-            </p>
-          </div>
+          <p v-else-if="recipientSearch && !searchingRecipients"
+            style="color: var(--color-text-tertiary); font-size: var(--text-sm); padding: var(--space-4); text-align: center;">
+            No results for "{{ recipientSearch }}"
+          </p>
+
+          <!-- Show all users when search is empty -->
+          <ul v-else-if="!recipientSearch" role="list" aria-label="Suggested people"
+            style="list-style: none;">
+            <li v-for="person in suggestedUsers" :key="person.id" class="convo-item"
+              style="width: 100%;" role="option" tabindex="0"
+              :aria-label="`Start conversation with ${person.display_name}`"
+              @click="startConversation(person)"
+              @keydown.enter.prevent="startConversation(person)"
+              @keydown.space.prevent="startConversation(person)">
+              <div class="convo-avatar" aria-hidden="true">
+                <img v-if="person.avatar_url" :src="person.avatar_url"
+                  :alt="person.display_name" width="48" height="48"
+                  style="width: 100%; height: 100%; object-fit: cover;" />
+                <div v-else class="post-avatar-placeholder"
+                  style="height: 100%; font-size: var(--text-base);">
+                  {{ person.display_name?.[0]?.toUpperCase() ?? '?' }}
+                </div>
+              </div>
+              <div class="convo-info">
+                <span class="convo-name">{{ person.display_name }}</span>
+                <span class="convo-preview-text">@{{ person.username }}</span>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
-  </ClientOnly>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -317,8 +345,7 @@ const supabase = useSupabaseClient<Database>()
 const session = useSupabaseSession()
 const { showToast } = useToast()
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
+// Types
 interface Message {
   id: string
   conversation_id: string
@@ -336,8 +363,7 @@ interface Conversation {
   unread_count: number
 }
 
-// ─── State ───────────────────────────────────────────────────────────────────
-
+// State
 const conversations = ref<Conversation[]>([])
 const activeConversation = ref<Conversation | null>(null)
 const messages = ref<Message[]>([])
@@ -348,10 +374,10 @@ const sending = ref(false)
 const showNewMessage = ref(false)
 const recipientSearch = ref('')
 const recipientResults = ref<Profile[]>([])
+const suggestedUsers = ref<Profile[]>([])
 const searchingRecipients = ref(false)
 const messagesScrollEl = ref<HTMLElement>()
 const messageInputEl = ref<HTMLTextAreaElement>()
-
 const isMobile = ref(false)
 
 onMounted(() => {
@@ -361,8 +387,7 @@ onMounted(() => {
   })
 })
 
-// ─── Fetch conversations ──────────────────────────────────────────────────────
-
+// Fetch conversations
 async function fetchConversations() {
   if (!session.value?.user) return
   loadingConversations.value = true
@@ -378,7 +403,7 @@ async function fetchConversations() {
       unread_count_1,
       unread_count_2
     `)
-    .or(`participant_1.eq.${session.value?.user.id},participant_2.eq.${session.value?.user.id}`)
+    .or(`participant_1.eq.${session.value.user.id},participant_2.eq.${session.value.user.id}`)
     .order('last_message_at', { ascending: false })
 
   if (error || !data) {
@@ -386,7 +411,6 @@ async function fetchConversations() {
     return
   }
 
-  // Fetch other user profiles
   const otherIds = data.map((c) =>
     c.participant_1 === session.value?.user!.id ? c.participant_2 : c.participant_1
   )
@@ -413,20 +437,33 @@ async function fetchConversations() {
   loadingConversations.value = false
 }
 
-// ─── Open conversation ────────────────────────────────────────────────────────
+// Suggested users
+async function fetchSuggestedUsers() {
+  if (!session.value?.user) return
+  const { data } = await supabase
+    .from('profiles')
+    .select('*')
+    .neq('id', session.value.user.id)
+    .limit(10)
+  suggestedUsers.value = (data ?? []) as Profile[]
+}
 
+// Open conversation
 async function openConversation(convo: Conversation) {
   activeConversation.value = convo
   await fetchMessages(convo.id)
   await markConversationRead(convo.id)
   convo.unread_count = 0
+  await fetchUnreadCount() // refresh the nav badge
   nextTick(() => scrollToBottom())
 }
+
+const { fetchUnreadCount } = useMessages()
 
 async function fetchMessages(conversationId: string) {
   loadingMessages.value = true
   const { data } = await supabase
-    .from('messages')
+    .from('direct_messages')
     .select('*')
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: true })
@@ -443,26 +480,30 @@ async function markConversationRead(conversationId: string) {
     .eq('id', conversationId)
     .single()
   if (!convo) return
-  const field = convo.participant_1 === session.value?.user.id ? 'unread_count_1' : 'unread_count_2'
+  const field = convo.participant_1 === session.value.user.id ? 'unread_count_1' : 'unread_count_2'
   await supabase
     .from('conversations')
     .update({ [field]: 0 } as never)
     .eq('id', conversationId)
 }
 
-// ─── Send message ─────────────────────────────────────────────────────────────
-
+// Send message
 async function sendMessage() {
   if (!newMessage.value.trim() || !activeConversation.value || !session.value?.user) return
   sending.value = true
   const content = newMessage.value.trim()
   newMessage.value = ''
 
+  if (messageInputEl.value) {
+    messageInputEl.value.style.height = 'auto'
+    messageInputEl.value.style.height = '36px'
+  }
+
   const { data, error } = await supabase
-    .from('messages')
+    .from('direct_messages')
     .insert({
       conversation_id: activeConversation.value.id,
-      sender_id: session.value?.user.id,
+      sender_id: session.value.user.id,
       content,
     })
     .select()
@@ -485,9 +526,9 @@ async function sendMessage() {
   sending.value = false
 }
 
-// ─── New conversation ─────────────────────────────────────────────────────────
-
+// New conversation
 let searchTimeout: ReturnType<typeof setTimeout>
+
 async function searchRecipients() {
   if (!recipientSearch.value.trim()) {
     recipientResults.value = []
@@ -510,7 +551,6 @@ async function searchRecipients() {
 async function startConversation(person: Profile) {
   if (!session.value?.user) return
 
-  // Check if conversation already exists
   const existing = conversations.value.find((c) => c.other_user.id === person.id)
   if (existing) {
     showNewMessage.value = false
@@ -518,11 +558,10 @@ async function startConversation(person: Profile) {
     return
   }
 
-  // Create new conversation
   const { data, error } = await supabase
     .from('conversations')
     .insert({
-      participant_1: session.value?.user.id,
+      participant_1: session.value.user.id,
       participant_2: person.id,
       last_message_at: new Date().toISOString(),
     })
@@ -549,24 +588,21 @@ async function startConversation(person: Profile) {
   await openConversation(newConvo)
 }
 
-// ─── Realtime ─────────────────────────────────────────────────────────────────
-
+// Realtime
 function subscribeToMessages() {
   if (!session.value?.user) return
   const channel = supabase
     .channel('messages-realtime')
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'messages' },
+      { event: 'INSERT', schema: 'public', table: 'direct_messages' },
       async (payload) => {
         const msg = payload.new as Message
-        // If it's for the active conversation, append it
         if (activeConversation.value?.id === msg.conversation_id && msg.sender_id !== session.value?.user?.id) {
           messages.value.push(msg)
           nextTick(() => scrollToBottom())
           await markConversationRead(msg.conversation_id)
         } else {
-          // Update unread count on the sidebar
           const convo = conversations.value.find((c) => c.id === msg.conversation_id)
           if (convo) {
             convo.unread_count++
@@ -582,8 +618,7 @@ function subscribeToMessages() {
   return () => supabase.removeChannel(channel)
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
+// Helpers
 function scrollToBottom() {
   if (messagesScrollEl.value) {
     messagesScrollEl.value.scrollTop = messagesScrollEl.value.scrollHeight
@@ -593,7 +628,8 @@ function scrollToBottom() {
 function autoResize(e: Event) {
   const el = e.target as HTMLTextAreaElement
   el.style.height = 'auto'
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px'
+  const newHeight = Math.min(el.scrollHeight, 80)
+  el.style.height = newHeight + 'px'
 }
 
 function shouldShowDateSeparator(idx: number): boolean {
@@ -630,12 +666,13 @@ function formatDateSeparator(dateStr: string): string {
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
-// ─── Lifecycle ────────────────────────────────────────────────────────────────
-
+// Lifecycle
 let unsubscribe: (() => void) | undefined
+
 watch(session, (s) => {
   if (s?.user) {
     fetchConversations()
+    fetchSuggestedUsers()
     unsubscribe = subscribeToMessages()
   }
 }, { immediate: true })
@@ -644,10 +681,17 @@ onUnmounted(() => unsubscribe?.())
 </script>
 
 <style scoped>
+:global(.app-main:has(.messages-layout)) {
+  overflow: hidden;
+  padding: 0;
+}
+
 .messages-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 380px 1fr;
   min-height: 100vh;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .messages-sidebar {
@@ -656,6 +700,12 @@ onUnmounted(() => unsubscribe?.())
   height: 100vh;
   position: sticky;
   top: 0;
+  min-width: 0;
+}
+
+.messages-sidebar .feed-tabs {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .messages-thread {
@@ -664,6 +714,8 @@ onUnmounted(() => unsubscribe?.())
   height: 100vh;
   position: sticky;
   top: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .messages-thread-header {
@@ -714,6 +766,7 @@ onUnmounted(() => unsubscribe?.())
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-5);
+  padding-right: var(--space-6);
   background: none;
   border: none;
   border-bottom: 1px solid var(--color-border-subtle);
@@ -764,7 +817,7 @@ onUnmounted(() => unsubscribe?.())
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-bottom: var(--space-1);
 }
 
@@ -775,16 +828,11 @@ onUnmounted(() => unsubscribe?.())
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .convo-item--unread .convo-name {
   font-weight: 700;
-}
-
-.convo-time {
-  font-size: var(--text-xs);
-  color: var(--color-text-tertiary);
-  flex-shrink: 0;
 }
 
 .convo-preview {
@@ -905,7 +953,8 @@ onUnmounted(() => unsubscribe?.())
   line-height: var(--leading-snug);
   resize: none;
   padding: var(--space-2) 0;
-  max-height: 120px;
+  min-height: unset;
+  max-height: 36px;
   overflow-y: auto;
 }
 

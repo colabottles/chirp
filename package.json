@@ -15,7 +15,7 @@
   "dependencies": {
     "@nuxtjs/supabase": "^2.0.4",
     "npm-check-updates": "^19.6.3",
-    "nuxt": "^4.3.1",
+    "nuxt": "^4.4.6",
     "supabase": "^2.76.15",
     "vue": "^3.5.29",
     "vue-router": "^5.0.3"
